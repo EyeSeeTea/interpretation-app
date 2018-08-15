@@ -27,6 +27,8 @@ const Interpretation = React.createClass({
             likedBy: this.props.data.likedBy,
             open: false,
             openAccessInfo: false,
+            newCommentVisibilityKey: null,
+            newCommentText: "",
             comments: this.props.data.comments,
             isTooltipActive: false,
         };
@@ -334,6 +336,20 @@ const Interpretation = React.createClass({
         }        
     },
 
+    _replyInterpretation() {
+        this._replyToUser(this.props.data.username);
+    },
+
+    _replyComment(comment) {
+        this._replyToUser(comment.user.userCredentials.username);
+    },
+
+    _replyToUser(replyToUsername) {
+        const insertReplyMention = replyToUsername && this.props.currentUser.username !== replyToUsername;
+        const newCommentText = insertReplyMention ? `@${replyToUsername} ` : "";
+        this.setState({ newCommentVisibilityKey: new Date(), newCommentText });
+    },
+
     _showEditHandler() {
         const divEditText = `edit_${this.props.data.id}`;
         const divShowText = `show_${this.props.data.id}`;
@@ -414,6 +430,8 @@ const Interpretation = React.createClass({
         const relativePeriodMsgId = `relativePeriodMsg_${this.props.data.id}`;
         const sourceLink = this._getSourceInterpretationLink();
 
+        const { newCommentText, newCommentVisibilityKey } = this.state;
+
         const peopleLikedByDialogActions = [
             <FlatButton type="button"
                 onClick={this._closePeopleLikedHandler}
@@ -458,6 +476,8 @@ const Interpretation = React.createClass({
 
                     <div className="linkTag">
                         {otherUtils.findItemFromList(this.props.data.likedBy, 'id', this.props.currentUser.id) === undefined ? <a onClick={this._likeHandler} id={likeLinkTagId}>Like</a> : <a onClick={this._unlikeHandler} id={likeLinkTagId}>Unlike</a> } 
+                        <label className="linkArea">·</label>
+                        <a onClick={this._replyInterpretation}>Reply</a>
                         <span className={this.props.currentUser.id === this.props.data.userId || this.props.currentUser.superUser ? '' : 'hidden'} >
                         <label className="linkArea">·</label><a onClick={this._showEditHandler}>Edit</a>
                         <label className="linkArea">·</label><a onClick={this._deleteHandler}>Delete</a>
@@ -477,8 +497,18 @@ const Interpretation = React.createClass({
                             <span> liked this</span><label className="linkArea">·</label><span>{this.state.comments.length} people commented</span>
                             <br />
                         </div>
-                        <CommentArea key={commentAreaKey} comments={this.state.comments} likes={this.state.likes} interpretationId={this.props.data.id} likedBy={this.state.likedBy} currentUser={this.props.currentUser} />
 
+                        <CommentArea
+                            key={commentAreaKey}
+                            comments={this.state.comments}
+                            likes={this.state.likes}
+                            interpretationId={this.props.data.id}
+                            likedBy={this.state.likedBy}
+                            currentUser={this.props.currentUser}
+                            newCommentVisibilityKey={newCommentVisibilityKey}
+                            newCommentText={newCommentText}
+                            onReply={this._replyComment}
+                        />
 
                         <Dialog
                             title="People"
