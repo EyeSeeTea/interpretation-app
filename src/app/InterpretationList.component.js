@@ -153,7 +153,7 @@ const InterpretationList = React.createClass({
 
                 if (searchTerm.moreTerms.commentText) searchTermUrl += `&filter=comments.text:ilike:${searchTerm.moreTerms.commentText}`;
                 
-                if (searchTerm.moreTerms.mention) searchTermUrl += `&filter=comments.mentions.username:eq:${this.props.d2.currentUser.username}`;
+                if (searchTerm.moreTerms.mention) searchTermUrl += `&filter=mentions:in:[${this.props.d2.currentUser.username}]`;
 
                 // TODO:
                 //      For 'Star' (Favorite), we can check it by '/{charId}/favorites...  so, we can do favorites:in:$---, but that would be in char..
