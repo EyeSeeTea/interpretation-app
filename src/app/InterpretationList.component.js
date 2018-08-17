@@ -123,7 +123,7 @@ const InterpretationList = React.createClass({
         return dataList;
     },
 
-    getSearchTerms(searchTerm) {
+    async getSearchTerms(searchTerm) {
         let searchTermUrl = '';
 
         if (searchTerm !== undefined) {
@@ -155,15 +155,22 @@ const InterpretationList = React.createClass({
                 
                 if (searchTerm.moreTerms.mention) searchTermUrl += `&filter=comments.mentions.username:eq:${this.props.d2.currentUser.username}`;
 
-                // TODO:
-                //      For 'Star' (Favorite), we can check it by '/{charId}/favorites...  so, we can do favorites:in:$---, but that would be in char..
-                //      So, we need to do 'chart.favorites:in:-userId--' ?  How can we tell which type?
-                //      Look at this in API after being able to submit for favorites/subscribers..
+                if (searchTerm.moreTerms.favorite)
+                    searchTermUrl += await this.getFilterForParentCondition("favorite:eq:true");
 
+                if (searchTerm.moreTerms.subscribed)
+                    searchTermUrl += await this.getFilterForParentCondition("subscribed:eq:true");
             }
         }
 
         return searchTermUrl;
+    },
+
+    getFilterForParentCondition(filter) {
+        return actions.getInterpretationsByParentFilter("id", filter)
+            .toPromise()
+            .then(interpretations => interpretations.map(interpretation => interpretation.id))
+            .then(interpretationIds => `&filter=id:in:[${interpretationIds.join(',')}]`)
     },
 
     getFavoriteSearchKeyName(favoriteType) {
@@ -357,8 +364,8 @@ const InterpretationList = React.createClass({
         });
     },
 
-    loadMore(page, afterFunc) {
-        const searchQuery = this.getSearchTerms(this.state.searchTerm);
+    async loadMore(page, afterFunc) {
+        const searchQuery = await this.getSearchTerms(this.state.searchTerm);
 
         actions.listInterpretation('', searchQuery, page).subscribe(result => {
             if (page === 1) {

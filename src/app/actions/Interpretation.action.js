@@ -2,8 +2,24 @@
 import Action from 'd2-ui/lib/action/Action';
 import { getInstance as getD2 } from 'd2/lib/d2';
 
-const actions = Action.createActionsFromNames(['listInterpretation', 'getMap', 'getEventReport', 'updateLike', 'removeLike', 'deleteInterpretation', 'editInterpretation'], 'interpretation');
+const actions = Action.createActionsFromNames([
+    'listInterpretation',
+    'getInterpretationsByParentFilter',
+    'getMap',
+    'getEventReport',
+    'updateLike',
+    'removeLike',
+    'deleteInterpretation',
+    'editInterpretation'
+], 'interpretation');
 
+const parentTypes = [
+    "eventReport",
+    "eventChart",
+    "chart",
+    "map",
+    "reportTable",
+];
 
 // TODO: Does not have fail response, or always response!!!
 actions.listInterpretation
@@ -30,6 +46,18 @@ actions.listInterpretation
             complete(result);
         })
         .catch(error);
+    });
+});
+
+actions.getInterpretationsByParentFilter
+.subscribe(({ data: [fields, filter], complete }) => {
+    getD2().then(d2 => {
+        const filters = parentTypes.map(parentType => `${parentType}.${filter}`);
+        const filterParams = filters.map(filter => `filter=${filter}`).join("&");
+        const url = `/interpretations?paging=false&fields=${fields}&${filterParams}&rootJunction=OR`;
+        const api = d2.Api.getApi();
+
+        api.get(url).then(response => complete(response.interpretations));
     });
 });
 
