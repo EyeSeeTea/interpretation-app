@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { IntlProvider, FormattedDate } from 'react-intl';
+import MentionsWrapper from './mentions-wrapper';
 import { otherUtils } from './utils';
 
 import actions from './actions/Interpretation.action';
@@ -15,6 +16,10 @@ const MessageOwner = React.createClass({
 
     getInitialState() {
         return this.setValues(this.props.data.text, this.props.data.text);
+    },
+
+    contextTypes: {
+        d2: React.PropTypes.object,
     },
 
     componentDidMount() {
@@ -61,6 +66,10 @@ const MessageOwner = React.createClass({
         });
     },
 
+    _onTextChange(text) {
+        this._onChange({ target: { value: text } });
+    },
+
     handleClick(e) {
         const linkTag = $(e.target);
         linkTag.closest('.interpretationText').find('.hiddenContent').show();
@@ -88,6 +97,7 @@ const MessageOwner = React.createClass({
     },
 
     render() {
+        const { d2 } = this.context;
         const created = this.props.data.created.substring(0, 10).split('-');
 
         let month = this._convertToNumber(created[1]);
@@ -122,7 +132,9 @@ const MessageOwner = React.createClass({
                         <span id={this._getTagId().divHideTag} className="hiddenContent hidden"></span>
                     </div>
                     <div id={this._getTagId().divEditText} className="hidden" >
-                        <textarea className="commentArea" value={this.state.text} onChange={this._onChange} />
+                        <MentionsWrapper d2={d2} onUserSelect={this._onTextChange}>
+                            <textarea className="commentArea" value={this.state.text} onChange={this._onChange} />
+                        </MentionsWrapper>
                         <br />
                         <a onClick={this._editInterpretationText}>  OK </a> | <a onClick={this._cancelInterpretationText}>  Cancel</a>
                     </div>
