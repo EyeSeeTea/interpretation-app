@@ -1,13 +1,9 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import List, { ListItem, ListItemText } from 'material-ui/List';
+import List, { ListItem } from 'material-ui/List';
 import Popover from 'material-ui/Popover';
-import Typography from 'material-ui/Typography';
-import { withStyles } from 'material-ui/styles';
 
-import i18n from '@dhis2/d2-i18n';
-
-const styles = theme => ({
+const styles = {
     popover: {
         // ensure the popover show on top of other dialogs/modals
         zIndex: 2000,
@@ -24,10 +20,10 @@ const styles = theme => ({
         color: 'gray',
         fontSize: '0.8125rem',
     },
-});
+};
 
 export const UserList = ({
-    classes,
+    d2,
     open,
     anchorEl,
     users,
@@ -56,37 +52,33 @@ export const UserList = ({
             anchorPosition={{ top: 15, left: 0 }}
             disableAutoFocus
             onClose={onClose}
-            className={classes.popover}
+            style={styles.popover}
         >
             {users.length ? (
-                <Fragment>
-                    <Typography variant="subheading">
-                        <em className={classes.filter}>
-                            {i18n.t('Searching for "{{filter}}"', { filter })}
+                <div>
+                    <span>
+                        <em style={styles.filter}>
+                            {d2.i18n.getTranslation('searching_for', { filter })}
                         </em>
-                    </Typography>
-                    <List dense disablePadding className={classes.list}>
+                    </span>
+                    <List style={styles.list}>
                         {users.map(u => (
                             <ListItem
-                                button
                                 key={u.id}
                                 onClick={onClick(u)}
-                                className={
+                                style={
                                     selectedUser && selectedUser.id === u.id
-                                        ? classes.selected
+                                        ? styles.selected
                                         : null
                                 }
-                            >
-                                <ListItemText
-                                    primary={`${u.displayName} (${u.userCredentials.username})`}
-                                />
-                            </ListItem>
+                                primaryText={`${u.displayName} (${u.userCredentials.username})`}
+                            />
                         ))}
                     </List>
-                </Fragment>
+                </div>
             ) : (
-                <em className={classes.filter}>
-                    {i18n.t('No results found for "{{filter}}"', { filter })}
+                <em style={styles.filter}>
+                    {d2.i18n.getTranslation('no_results_for', { filter })}
                 </em>
             )}
         </Popover>
@@ -109,6 +101,7 @@ UserList.propTypes = {
     filter: PropTypes.string,
     onClose: PropTypes.func.isRequired,
     onSelect: PropTypes.func.isRequired,
+    d2: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(UserList);
+export default UserList;

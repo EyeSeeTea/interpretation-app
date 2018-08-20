@@ -142,7 +142,7 @@ class MentionsWrapper extends Component {
     };
 
     render() {
-        const { children } = this.props;
+        const { d2, children } = this.props;
         const { element, listIsOpen, users, selectedUserIndex, capturedText } = this.state;
 
         return (
@@ -150,6 +150,7 @@ class MentionsWrapper extends Component {
                 {children}
                 <UserList
                     open={listIsOpen}
+                    d2={d2}
                     anchorEl={element}
                     users={users}
                     selectedUser={users[selectedUserIndex]}
