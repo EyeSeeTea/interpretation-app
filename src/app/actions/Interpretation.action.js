@@ -4,6 +4,7 @@ import { getInstance as getD2 } from 'd2/lib/d2';
 
 const actions = Action.createActionsFromNames([
     'listInterpretation',
+    'getAllInterpretationsByOrFilters',
     'getInterpretationsByParentFilter',
     'getMap',
     'getEventReport',
@@ -49,16 +50,29 @@ actions.listInterpretation
     });
 });
 
-actions.getInterpretationsByParentFilter
-.subscribe(({ data: [fields, filter], complete }) => {
+actions.getAllInterpretationsByOrFilters
+.subscribe(({ data: [fields, filters], complete }) => {
     getD2().then(d2 => {
-        const filters = parentTypes.map(parentType => `${parentType}.${filter}`);
-        const filterParams = filters.map(filter => `filter=${filter}`).join("&");
-        const url = `/interpretations?paging=false&fields=${fields}&${filterParams}&rootJunction=OR`;
         const api = d2.Api.getApi();
+        const filterParams = filters.map(filter => `filter=${filter}`);
+        const params = [
+            "paging=false",
+            "fields=" + fields,
+            "order=created:desc",
+            "rootJunction=OR",
+            ...filterParams,
+        ];
 
-        api.get(url).then(response => complete(response.interpretations));
+        api.get(`/interpretations?${params.join("&")}`)
+            .then(response => complete(response.interpretations));
     });
+});
+
+
+actions.getInterpretationsByParentFilter
+.subscribe(({ data: [fields, parentFilter], complete }) => {
+    const filters = parentTypes.map(parentType => `${parentType}.${parentFilter}`);
+    actions.getAllInterpretationsByOrFilters("id", filters).subscribe(complete);
 });
 
 actions.getMap
