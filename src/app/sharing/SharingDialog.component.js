@@ -5,7 +5,7 @@ import Snackbar from 'material-ui/Snackbar';
 import PropTypes from 'prop-types';
 import React from 'react';
 import Sharing from './Sharing.component';
-import LoadingMask from '../loading-mask/LoadingMask.component';
+import LoadingMask from 'd2-ui/lib/loading-mask/LoadingMask.component';
 
 config.i18n.strings.add('share');
 config.i18n.strings.add('close');

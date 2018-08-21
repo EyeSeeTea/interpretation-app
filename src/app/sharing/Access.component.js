@@ -3,7 +3,7 @@ import React from 'react';
 import { compose, mapProps, getContext, withProps } from 'recompose';
 import { config } from 'd2/lib/d2';
 import IconButton from 'material-ui/IconButton';
-import SvgIcon from '../svg-icon/SvgIcon';
+import SvgIcon from 'd2-ui/lib/svg-icon/SvgIcon';
 
 import PermissionPicker from './PermissionPicker.component';
 

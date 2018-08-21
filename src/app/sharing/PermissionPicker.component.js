@@ -7,7 +7,7 @@ import Divider from 'material-ui/Divider';
 import Popover from 'material-ui/Popover';
 import Menu from 'material-ui/Menu';
 import { config } from 'd2/lib/d2';
-import SvgIcon from '../svg-icon/SvgIcon';
+import SvgIcon from 'd2-ui/lib/svg-icon/SvgIcon';
 
 import PermissionOption from './PermissionOption.component';
 
