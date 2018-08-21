@@ -1,13 +1,14 @@
 
 import React from 'react';
 import { Dialog, FlatButton } from 'material-ui';
-import SharingDialog from 'd2-ui/lib/sharing/SharingDialog.component';
+import SharingDialog from './sharing/SharingDialog.component';
 import MessageOwner from './MessageOwner.component';
 import CommentArea from './CommentArea.component';
 import AccessInfo from './AccessInfo.component';
 import { getInstance as getD2 } from 'd2/lib/d2';
 import { delayOnceTimeAction, restUtil, dhisUtils, otherUtils } from './utils';
 import { dataInfo } from './data';
+import { validateSharing } from '../utils/permissions';
 
 import actions from './actions/Interpretation.action';
 import Tooltip from 'rc-tooltip';
@@ -32,6 +33,10 @@ const Interpretation = React.createClass({
             isTooltipActive: false,
             isSharingDialogOpen: false,
         };
+    },
+
+    contextTypes: {
+        d2: React.PropTypes.object,
     },
 
     componentDidMount() {
@@ -413,6 +418,13 @@ const Interpretation = React.createClass({
         window.location.href = this._getSourceInterpretationLink();
     },
 
+    _validateSharing(updatedAttributes) {
+        const { d2 } = this.context;
+        const { data } = this.props;
+        const isValid = validateSharing(data.objData, updatedAttributes);
+        return isValid ? null : d2.i18n.getTranslation("validation_error_interpretation_sharing");
+    },
+
     render() {
         const likeLinkTagId = `likeLink_${this.props.data.id}`;
         const interpretationTagId = `interpretation_${this.props.data.id}`;
@@ -481,6 +493,7 @@ const Interpretation = React.createClass({
                         id={this.props.data.id}
                         type="interpretation"
                         onRequestClose={this._closeSharingDialog}
+                        validate={this._validateSharing}
                     />
 
                      <div className="interpretationCommentArea">

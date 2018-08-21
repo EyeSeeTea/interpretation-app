@@ -56,6 +56,14 @@ class SharingDialog extends React.Component {
             .then(searchResult => searchResult);
 
     onSharingChanged = (updatedAttributes, onSuccess) => {
+        const { validate } = this.props;
+        const validateError = validate ? validate(updatedAttributes) : null;
+
+        if (validateError) {
+            this.setState({ errorMessage: validateError });
+            return;
+        }
+
         const updatedObject = {
             meta: this.state.sharedObject.meta,
             object: {
@@ -134,6 +142,10 @@ class SharingDialog extends React.Component {
         this.props.onRequestClose(this.state.sharedObject.object);
     }
 
+    clearErrorMessage = () => {
+        this.setState({ errorMessage: ''});
+    }
+
     render() {
         const dataShareable = this.state.dataShareableTypes.indexOf(this.props.type) !== -1;
         const errorOccurred = this.state.errorMessage !== '';
@@ -151,6 +163,7 @@ class SharingDialog extends React.Component {
                     open={errorOccurred}
                     message={this.state.errorMessage}
                     autoHideDuration={3000}
+                    onRequestClose={this.clearErrorMessage}
                 />
                 { isLoading && <LoadingMask style={styles.loadingMask} size={1} /> }
                 { this.state.sharedObject &&
@@ -197,6 +210,13 @@ SharingDialog.propTypes = {
      * Id of the sharable object.
      */
     id: PropTypes.string.isRequired,
+
+    /**
+     * A function (optional) that takes the partial sharing object about to be saved.
+     * If the save should go ahead, return null; if the save should be cancelled, return
+     * a string describing the problem.
+     */
+    validate: PropTypes.func,
 };
 
 SharingDialog.contextTypes = {
