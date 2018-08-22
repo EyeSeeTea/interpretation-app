@@ -418,11 +418,11 @@ const Interpretation = React.createClass({
         window.location.href = this._getSourceInterpretationLink();
     },
 
-    _validateSharing(updatedAttributes) {
+    _validateSharing(updatedAttributes, prevAttributes) {
         const { d2 } = this.context;
         const { data } = this.props;
-        const isValid = validateSharing(data.objData, updatedAttributes);
-        return isValid ? null : d2.i18n.getTranslation("validation_error_interpretation_sharing");
+        const getTranslation = d2.i18n.getTranslation.bind(d2.i18n);
+        return validateSharing(getTranslation, data.objData, updatedAttributes, prevAttributes);
     },
 
     render() {

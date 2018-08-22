@@ -57,7 +57,8 @@ class SharingDialog extends React.Component {
 
     onSharingChanged = (updatedAttributes, onSuccess) => {
         const { validate } = this.props;
-        const validateError = validate ? validate(updatedAttributes) : null;
+        const prevAttributes = this.state.sharedObject.object;
+        const validateError = validate ? validate(updatedAttributes, prevAttributes) : null;
 
         if (validateError) {
             this.setState({ errorMessage: validateError });
