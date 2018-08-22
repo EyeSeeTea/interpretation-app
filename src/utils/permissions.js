@@ -4,8 +4,8 @@ const accesses = {
         "rw------": "read-write",
 };
 
-function isSubset(array1, array2) {
-    return array1.every(x => array2.includes(x));
+function difference(array1, array2) {
+    return array1.filter(x => !array2.includes(x));
 }
 
 function validatePublicAccess(getTranslation, parentAttributes, attributes) {
@@ -13,15 +13,11 @@ function validatePublicAccess(getTranslation, parentAttributes, attributes) {
 
     if (!attributes[key]) {
         return null;
-    } else if (accesses[parentAttributes[key]] === "private" || accesses[attributes[key]] !== "private") {
+    } else if (accesses[parentAttributes[key]] === "private" && accesses[attributes[key]] !== "private") {
         return getTranslation("sharing_validation_public_access_must_be_private");
     } else {
         return null;
     }
-}
-
-function difference(array1, array2) {
-    return array1.filter(x => !array2.includes(x));
 }
 
 function validateGroupAccess(getTranslation, key, parentAttributes, attributes, prevAttributes) {
