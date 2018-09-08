@@ -460,6 +460,11 @@ a{
     border-bottom: 1px solid #dddddd;
 }
 
+.autoCompleteMenuItem {
+  min-height: 20px !important;
+  line-height: 10px !important;
+}
+
 .spanSearchItemHeaderName
 {
   font-size: 13px;
