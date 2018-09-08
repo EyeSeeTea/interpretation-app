@@ -21,7 +21,12 @@ const InterpretationList = React.createClass({
             hasMore: true,
             items: [],
             searchTerm: undefined,
-            currentUser: { name: this.props.d2.currentUser.displayName, id: this.props.d2.currentUser.id, superUser: this.isSuperUser() },
+            currentUser: {
+                name: this.props.d2.currentUser.displayName,
+                username: this.props.d2.currentUser.username,
+                id: this.props.d2.currentUser.id,
+                superUser: this.isSuperUser(),
+            },
             d2Api: this.props.d2.Api.getApi(),
         };
     },
@@ -81,15 +86,16 @@ const InterpretationList = React.createClass({
         for (let i = 0; i < itemList.length; i++) {
             const interpretation = itemList[i];
 
-            let data = {};
-            data = interpretation;
+            let data = Object.assign({}, interpretation);
 
             if (interpretation.user === undefined) {
                 data.userId = '';
                 data.user = 'UNKNOWN';
+                data.username = 'UNKNOWN';
             } else {
                 data.userId = interpretation.user.id;
                 data.user = interpretation.user.name;
+                data.username = interpretation.user.userCredentials.username;
             }
             // data.comments = JSON.stringify(interpretation.comments);
 
@@ -153,7 +159,7 @@ const InterpretationList = React.createClass({
 
                 if (searchTerm.moreTerms.commentText) searchTermUrl += `&filter=comments.text:ilike:${searchTerm.moreTerms.commentText}`;
                 
-                if (searchTerm.moreTerms.mention) searchTermUrl += `&filter=comments.mentions.username:eq:${this.props.d2.currentUser.username}`;
+                if (searchTerm.moreTerms.mention) searchTermUrl += `&filter=mentions:in:[${this.props.d2.currentUser.username}]`;
 
                 // TODO:
                 //      For 'Star' (Favorite), we can check it by '/{charId}/favorites...  so, we can do favorites:in:$---, but that would be in char..
