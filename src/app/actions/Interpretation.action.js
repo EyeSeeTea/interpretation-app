@@ -96,7 +96,7 @@ actions.editInterpretation
         getD2().then(d2 => {
             const url = `${d2.Api.getApi().baseUrl}/interpretations/${id}`;
 
-            d2.Api.getApi().request('PUT', url, value, { contentType: 'text/plain' })
+            d2.Api.getApi().request('PUT', url, value, { headers: { "Content-Type": 'text/plain' } })
 				.then(complete)
                 .catch(errorResponse => {
                     console.log(errorResponse);
