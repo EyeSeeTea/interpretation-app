@@ -6,17 +6,30 @@ import actions from './actions/Comment.action';
 
 const PostComment = React.createClass({
     propTypes: {
+        text: React.PropTypes.string,
         currentUser: React.PropTypes.object,
         interpretationId: React.PropTypes.string,
         postCommentSuccess: React.PropTypes.func,
+        focusKey: React.PropTypes.any,
     },
 
     getInitialState() {
         return {
-            text: '',
+            text: this.props.text,
         };
     },
 
+    componentDidMount() {
+        this.refs.postCommentTextarea.focus();
+    },
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.focusKey !== this.props.focusKey) {
+            this.setState({ text: nextProps.text });
+            this.refs.postCommentTextarea.focus();
+        }
+    },
+ 
     _addComment() {
         if (this.state.text !== '') {
             actions.addComment(this.props.interpretationId, this.state.text)
@@ -55,7 +68,13 @@ const PostComment = React.createClass({
                                     <tbody>
                                         <tr>
                                             <td>
-                                                <textarea className="commentArea" placeholder="Add a comment..." value={this.state.text} onChange={this._onChange} />
+                                                <textarea
+                                                    ref="postCommentTextarea"
+                                                    className="commentArea"
+                                                    placeholder="Add a comment..."
+                                                    value={this.state.text}
+                                                    onChange={this._onChange}
+                                                />
                                                 <br />
                                                 <a onClick={this._addComment}>Post Reply</a>
                                             </td>
