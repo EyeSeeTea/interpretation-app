@@ -76,7 +76,7 @@ const PostComment = React.createClass({
                                                     onChange={this._onChange}
                                                 />
                                                 <br />
-                                                <a onClick={this._addComment}>Share your comment</a>
+                                                <a onClick={this._addComment}>Post Reply</a>
                                             </td>
                                         </tr>
                                     </tbody>
