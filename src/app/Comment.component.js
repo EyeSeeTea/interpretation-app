@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { IntlProvider, FormattedRelative } from 'react-intl';
 import { Avatar } from 'material-ui';
@@ -15,6 +14,7 @@ const Comment = React.createClass({
         currentUser: React.PropTypes.object,
         interpretationId: React.PropTypes.string,
         deleteCommentSuccess: React.PropTypes.func,
+        onReply: React.PropTypes.func,
     },
 
     getInitialState() {
@@ -54,6 +54,10 @@ const Comment = React.createClass({
 
     _getWords(str, start, end) {
         return str.split(/\s+/).slice(start, end).join(' ');
+    },
+
+    _reply() {
+        this.props.onReply && this.props.onReply(this.props.data);
     },
 
     _setComments(content, oldText) {
@@ -188,8 +192,12 @@ const Comment = React.createClass({
                                         <FormattedRelative value={date} />
                                     </IntlProvider>
                                 </span>
+
+                                <label className="linkArea"></label>
+                                <a onClick={this._reply}>Reply</a>
+
                                 <span className={this.props.currentUser.id === this.state.data.user.id || this.props.currentUser.superUser ? '' : 'hidden'} >
-                                   <label className="linkArea"></label><a onClick={this._showEditHandler}>Edit</a>
+                                   <label className="linkArea">·</label><a onClick={this._showEditHandler}>Edit</a>
                                    <label className="linkArea">·</label><a onClick={this._deleteHandler}>Delete</a>
                                 </span>
                             </div>
