@@ -15,6 +15,12 @@ const styles = {
     loadingMask: {
         position: 'relative',
     },
+    snackBar: {
+        height: 'auto',
+        lineHeight: '28px',
+        padding: 24,
+        whiteSpace: 'pre-line',
+    },
 };
 
 const defaultState = {
@@ -165,6 +171,7 @@ class SharingDialog extends React.Component {
                     message={this.state.errorMessage}
                     autoHideDuration={3000}
                     onRequestClose={this.clearErrorMessage}
+                    bodyStyle={styles.snackBar}
                 />
                 { isLoading && <LoadingMask style={styles.loadingMask} size={1} /> }
                 { this.state.sharedObject &&
