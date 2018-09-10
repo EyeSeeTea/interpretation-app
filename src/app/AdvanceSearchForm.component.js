@@ -17,14 +17,10 @@ export default class AdvanceSearchForm extends Component {
         this._setDateCreatedTo = this._setDateCreatedTo.bind(this);
         this._setDateModiFrom = this._setDateModiFrom.bind(this);
         this._setDateModiTo = this._setDateModiTo.bind(this);
-        this._authorSelected = this._authorSelected.bind(this);
-        this._commentatorSelected = this._commentatorSelected.bind(this);
-        this._onSelectAuthor = this._onSelectAuthor.bind(this);
-        this._onChangeInterpretationText = this._onChangeInterpretationText.bind(this);
+        this._onChangeText = this._onChangeText.bind(this);
         this._onChangeFavoritesName = this._onChangeFavoritesName.bind(this);
-        this._onChangeCommentText = this._onChangeCommentText.bind(this);
-        this._onCheckStar = this._onCheckStar.bind(this);
-        this._onCheckSubscribe = this._onCheckSubscribe.bind(this);
+        this._onCheckFavorite = this._onCheckFavorite.bind(this);
+        this._onCheckSubscribed = this._onCheckSubscribed.bind(this);
         this._onCheckMention = this._onCheckMention.bind(this);
     }
 
@@ -35,17 +31,14 @@ export default class AdvanceSearchForm extends Component {
             dateCreatedTo: null,
             dateModiFrom: null,
             dateModiTo: null,
-            author: { id: '', displayName: '' },
-            authorDataSource: [],
-            commentator: { id: '', displayName: '' },
-            commentatorDataSource: [],
-            interpretationText: '',
+            user: { id: '', displayName: '' },
+            userDataSource: [],
+            text: '',
             favoritesName: '',
-            commentText: '',
             showFavoritesNameSearch: false,
             //favoritesNameSearchHint: '',
-            star: false,
-            subscribe: false,
+            favorite: false,
+            subscribed: false,
             mention: false,
         };
     }
@@ -57,8 +50,7 @@ export default class AdvanceSearchForm extends Component {
     resetForm() {
         this.setState(this.getInitialData());
 
-        if (this.refs.author !== undefined) this.refs.author.clear();
-        if (this.refs.commentator !== undefined) this.refs.commentator.clear();
+        if (this.refs.user !== undefined) this.refs.user.clear();
     }
 
     generateAdvSearchText() {
@@ -70,15 +62,11 @@ export default class AdvanceSearchForm extends Component {
         if (this.state.dateCreatedTo) summaryStr += `dateCreatedTo: ${dateUtil.formatDateMMDDYYYY(this.state.dateCreatedTo, '/')}, `;
         if (this.state.dateModiFrom) summaryStr += `dateModiFrom: ${dateUtil.formatDateMMDDYYYY(this.state.dateModiFrom, '/')}, `;
         if (this.state.dateModiTo) summaryStr += `dateModiTo: ${dateUtil.formatDateMMDDYYYY(this.state.dateModiTo, '/')}, `;
-        if (this.state.author.id) summaryStr += `author: ${this.state.author.displayName}, `;
-        if (this.state.commentator.id) summaryStr += `commentator: ${this.state.commentator.displayName}, `;
-        if (this.state.interpretationText) summaryStr += `interpretationText: ${this.state.interpretationText}, `;
+        if (this.state.user.id) summaryStr += `user: ${this.state.user.displayName}, `;
+        if (this.state.text) summaryStr += `text: ${this.state.text}, `;
         if (this.state.favoritesName) summaryStr += `favoritesName: ${this.state.favoritesName}, `;
-        if (this.state.commentText) summaryStr += `commentText: ${this.state.commentText}, `;
-
-        // TODO: Need to use Star/Subscribe/Mention..  <-- DOES THIS WORK?  
-        if (this.state.star) summaryStr += `star: ${this.state.star}, `;
-        if (this.state.subscribe) summaryStr += `subscribe: ${this.state.subscribe}, `;
+        if (this.state.favorite) summaryStr += `favorite: ${this.state.favorite}, `;
+        if (this.state.subscribed) summaryStr += `subscribed: ${this.state.subscribed}, `;
         if (this.state.mention) summaryStr += `mention: ${this.state.mention}, `;
 
         if (summaryStr) summaryStr = `${otherUtils.advSearchStr}: ${summaryStr.substring(0, summaryStr.length - 2)}`;
@@ -115,37 +103,20 @@ export default class AdvanceSearchForm extends Component {
         this.setState({ dateModiTo });
     }
 
-    _authorSelected(user) {
-        this.state.author = user;
-    }
-
-    _commentatorSelected(user) {
-        this.state.commentator = user;
-    }
-
-    _onSelectAuthor(value, i) {
-        // Set real author here with setstate!!
-        this.state.author = this.state.authorDataSource[i].source;
-    }
-
-    _onChangeInterpretationText(event) {
-        this.setState({ interpretationText: event.target.value });
+    _onChangeText(event) {
+        this.setState({ text: event.target.value });
     }
     _onChangeFavoritesName(event) {
         this.setState({ favoritesName: event.target.value });
     }
-    _onChangeCommentText(event) {
-        this.setState({ commentText: event.target.value });
-    }
-
-    _onCheckStar(event) {
+    _onCheckFavorite(event) {
         setTimeout(() => {
-            this.setState((oldState) => { return { star: !oldState.star }; });    
+            this.setState((oldState) => { return { favorite: !oldState.favorite }; });
         }, 1 );
     }
-    _onCheckSubscribe(event) {
+    _onCheckSubscribed(event) {
         setTimeout(() => {
-            this.setState((oldState) => { return { subscribe: !oldState.subscribe }; });    
+            this.setState((oldState) => { return { subscribed: !oldState.subscribed }; });
         }, 1 );
     }
     _onCheckMention(event) {
@@ -246,47 +217,54 @@ export default class AdvanceSearchForm extends Component {
                                 <tbody>
                                 <tr>
                                     <td>
-                                        <Checkbox label="Mention" value={this.state.mention} checked={this.state.mention} onCheck={this._onCheckMention} iconStyle={{left: "7"}} />
+                                        <Checkbox
+                                            label="Mention"
+                                            value={this.state.mention}
+                                            checked={this.state.mention}
+                                            onCheck={this._onCheckMention}
+                                            iconStyle={{left: 7}}
+                                        />
+                                    </td>
+                                    <td>
+                                        <Checkbox
+                                            label="Favorite"
+                                            value={this.state.favorite}
+                                            checked={this.state.favorite}
+                                            onCheck={this._onCheckFavorite}
+                                            iconStyle={{left: 7}}
+                                        />
+                                    </td>
+                                    <td>
+                                        <Checkbox
+                                            label="Subscribed"
+                                            value={this.state.subscribed}
+                                            checked={this.state.subscribed}
+                                            onCheck={this._onCheckSubscribed}
+                                            iconStyle={{left: 7}}
+                                        />
                                     </td>
                                 </tr>
                                 </tbody>
                                 </table>
                             </td>
-                        </tr>                        
-                        <tr>
-                            <td className="tdTitle"><span className="searchStyle">Author (user)</span></td>
-                            <td className="tdData">
-                                <AutoCompleteUsers searchId="author" fullWidth hintStyle={hintStyle} item={this.state.author} ref="author" />
-                            </td>
                         </tr>
+
                         <tr>
-                            <td className="tdTitle"><span className="searchStyle">Commentator (user)</span></td>
+                            <td className="tdTitle"><span className="searchStyle">User (interpretation/comment)</span></td>
                             <td className="tdData">
-                                <AutoCompleteUsers searchId="commentator" fullWidth hintStyle={hintStyle} item={this.state.commentator} ref="commentator" />
+                                <AutoCompleteUsers searchId="user" fullWidth hintStyle={hintStyle} item={this.state.user} ref="user" />
                             </td>
                         </tr>
 
                         <tr>
-                            <td className="tdTitle"><span className="searchStyle">Interpretation Text</span></td>
+                            <td className="tdTitle"><span className="searchStyle">Text (interpretation/comment)</span></td>
                             <td className="tdData">
                                 <TextField
                                     hintText="Partial Interpretation Text"
                                     hintStyle={hintStyle}
-                                    value={this.state.interpretationText}
+                                    value={this.state.text}
                                     fullWidth
-                                    onChange={this._onChangeInterpretationText}
-                                />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td className="tdTitle"><span className="searchStyle">Comment Text</span></td>
-                            <td className="tdData">
-                                <TextField
-                                    hintText="Partial Comment Text"
-                                    hintStyle={hintStyle}
-                                    value={this.state.commentText}
-                                    fullWidth
-                                    onChange={this._onChangeCommentText}
+                                    onChange={this._onChangeText}
                                 />
                             </td>
                         </tr>

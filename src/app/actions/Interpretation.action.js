@@ -2,16 +2,33 @@
 import Action from 'd2-ui/lib/action/Action';
 import { getInstance as getD2 } from 'd2/lib/d2';
 
-const actions = Action.createActionsFromNames(['listInterpretation', 'getMap', 'getEventReport', 'updateLike', 'removeLike', 'deleteInterpretation', 'editInterpretation'], 'interpretation');
+const actions = Action.createActionsFromNames([
+    'listInterpretation',
+    'getAllInterpretationsByOrFilters',
+    'getInterpretationsByParentFilter',
+    'getMap',
+    'getEventReport',
+    'updateLike',
+    'removeLike',
+    'deleteInterpretation',
+    'editInterpretation'
+], 'interpretation');
 
+const parentTypes = [
+    "eventReport",
+    "eventChart",
+    "chart",
+    "map",
+    "reportTable",
+];
 
 // TODO: Does not have fail response, or always response!!!
 actions.listInterpretation
 .subscribe(({ data: [model, searchData, page], complete, error }) => {
     getD2().then(d2 => {
     let url = 'interpretations?fields=id,type,text,created,lastUpdated,userGroupAccesses[*]'
-        + ',externalAccess,publicAccess,likes,likedBy[id,name],user[id,name]'
-        + ',comments[id,created,latestUpdate,text,user[id,name]]'
+        + ',externalAccess,publicAccess,likes,likedBy[id,name],user[id,name,userCredentials[username]]'
+        + ',comments[id,created,latestUpdate,text,user[id,name,userCredentials[username]]]'
         + ',eventReport[id,name,relativePeriods,userAccesses[*],userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
         + ',eventChart[id,name,relativePeriods,userAccesses[*],userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
         + ',chart[id,name,relativePeriods,userAccesses[*],userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
@@ -31,6 +48,31 @@ actions.listInterpretation
         })
         .catch(error);
     });
+});
+
+actions.getAllInterpretationsByOrFilters
+.subscribe(({ data: [fields, filters], complete }) => {
+    getD2().then(d2 => {
+        const api = d2.Api.getApi();
+        const filterParams = filters.map(filter => `filter=${filter}`);
+        const params = [
+            "paging=false",
+            "fields=" + fields,
+            "order=created:desc",
+            "rootJunction=OR",
+            ...filterParams,
+        ];
+
+        api.get(`/interpretations?${params.join("&")}`)
+            .then(response => complete(response.interpretations));
+    });
+});
+
+
+actions.getInterpretationsByParentFilter
+.subscribe(({ data: [fields, parentFilter], complete }) => {
+    const filters = parentTypes.map(parentType => `${parentType}.${parentFilter}`);
+    actions.getAllInterpretationsByOrFilters("id", filters).subscribe(complete);
 });
 
 actions.getMap
@@ -96,7 +138,7 @@ actions.editInterpretation
         getD2().then(d2 => {
             const url = `${d2.Api.getApi().baseUrl}/interpretations/${id}`;
 
-            d2.Api.getApi().request('PUT', url, value, { contentType: 'text/plain' })
+            d2.Api.getApi().request('PUT', url, value, { headers: { "Content-Type": 'text/plain' } })
 				.then(complete)
                 .catch(errorResponse => {
                     console.log(errorResponse);

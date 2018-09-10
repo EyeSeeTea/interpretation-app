@@ -20,6 +20,7 @@ export default class SearchBox extends Component {
         this._openAdvancedSearchForm = this._openAdvancedSearchForm.bind(this);
         this._closeAdvancedSearchForm = this._closeAdvancedSearchForm.bind(this);
         this._advSearchFormReset = this._advSearchFormReset.bind(this);
+        this._advSearchFormStateReset = this._advSearchFormStateReset.bind(this);
         this._performAdvancedSearch = this._performAdvancedSearch.bind(this);
         this._searchedItemSelected = this._searchedItemSelected.bind(this);
         this._searchEnterKeyPressed = this._searchEnterKeyPressed.bind(this);
@@ -42,23 +43,27 @@ export default class SearchBox extends Component {
     }
 
     _openAdvancedSearchForm() {
-        if (!otherUtils.checkAdvancedSearch(this.refs.searchKeyword.getInputKeyword())) this._advSearchFormReset();
+        if (!otherUtils.checkAdvancedSearch(this.refs.searchKeyword.getInputKeyword()))
+            this._advSearchFormStateReset();
 
         this.setState({ open: true });
         this.bodyscrollingDisable(true);
     }
 
     _closeAdvancedSearchForm() {
-        // get data from advanced search form
-        this.refs.advancedSearchForm.resetForm();
-
-        this.setState({ open: false, moreTerms: undefined });
+        this.setState({ open: false });
         this.bodyscrollingDisable(false);
     }
 
-    _advSearchFormReset() {
+    _advSearchFormStateReset() {
         // Reset the ADV Search data - on next open
         this.setState({ moreTerms: undefined });
+    }
+
+    _advSearchFormReset() {
+        const { advancedSearchForm } = this.refs;
+        if (advancedSearchForm)
+            advancedSearchForm.resetForm();
     }
 
     _performAdvancedSearch() {
