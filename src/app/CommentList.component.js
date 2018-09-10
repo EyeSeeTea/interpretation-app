@@ -10,6 +10,7 @@ const CommentList = React.createClass({
         hidden: React.PropTypes.bool,
         deleteCommentSuccess: React.PropTypes.func,
         updateCommentSuccess: React.PropTypes.func,
+        onReply: React.PropTypes.func,
     },
 
     getInitialState() {
@@ -30,7 +31,15 @@ const CommentList = React.createClass({
              <div className={clazzName} id={tagId} key={tagId}>
                 {this.state.list.map(data =>
                     <div id={data.id} key={data.id} className="greyBackground">
-                        <Comment key={data} data={data} currentUser={this.props.currentUser} interpretationId={this.props.interpretationId} updateCommentSuccess={this.props.updateCommentSuccess} deleteCommentSuccess={this.props.deleteCommentSuccess} />
+                        <Comment
+                            key={data}
+                            data={data}
+                            currentUser={this.props.currentUser}
+                            interpretationId={this.props.interpretationId}
+                            updateCommentSuccess={this.props.updateCommentSuccess}
+                            deleteCommentSuccess={this.props.deleteCommentSuccess}
+                            onReply={this.props.onReply}
+                        />
                     </div>
                 )}
             </div>

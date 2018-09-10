@@ -12,6 +12,9 @@ const CommentArea = React.createClass({
         likedBy: React.PropTypes.array,
         interpretationId: React.PropTypes.string,
         currentUser: React.PropTypes.object,
+        newCommentVisibilityKey: React.PropTypes.any,
+        newCommentText: React.PropTypes.string,
+        onReply: React.PropTypes.func,
     },
 
     getInitialState() {
@@ -98,7 +101,17 @@ const CommentArea = React.createClass({
         let commentPart = '';
         if (this.state.showComments.length > 0) {
             const keyTagId = `showList_${this.props.interpretationId}`;
-            commentPart = <CommentList list={this.state.showComments} hidden={false} isHidden={false} key={keyTagId} interpretationId={this.props.interpretationId} currentUser={this.props.currentUser} updateCommentSuccess={this._updateCommentSuccess} deleteCommentSuccess={this._deleteCommentSuccess} />;
+            commentPart = <CommentList
+                list={this.state.showComments}
+                hidden={false}
+                isHidden={false}
+                key={keyTagId}
+                interpretationId={this.props.interpretationId}
+                currentUser={this.props.currentUser}
+                updateCommentSuccess={this._updateCommentSuccess}
+                deleteCommentSuccess={this._deleteCommentSuccess}
+                onReply={this.props.onReply}
+            />;
         }
 
         return commentPart;
@@ -109,7 +122,17 @@ const CommentArea = React.createClass({
 
         if (this.state.hideComments.length > 0) {
             const keyTagId = `hideList_${this.props.interpretationId}`;
-            commentPart = <CommentList isHidden hidden list={this.state.hideComments} key={keyTagId} interpretationId={this.props.interpretationId} currentUser={this.props.currentUser} updateCommentSuccess={this._updateCommentSuccess} deleteCommentSuccess={this._deleteCommentSuccess} />;
+            commentPart = <CommentList
+                isHidden
+                hidden
+                list={this.state.hideComments}
+                key={keyTagId}
+                interpretationId={this.props.interpretationId}
+                currentUser={this.props.currentUser}
+                updateCommentSuccess={this._updateCommentSuccess}
+                deleteCommentSuccess={this._deleteCommentSuccess}
+                onReply={this.props.onReply}
+            />;
         }
 
         return commentPart;
@@ -148,7 +171,15 @@ const CommentArea = React.createClass({
 
                 {this._getShowCommentListTag()}
 
-                <PostComment currentUser={this.props.currentUser} interpretationId={this.props.interpretationId} postCommentSuccess={this._addCommentSuccess} />
+                {this.props.newCommentVisibilityKey &&
+                    <PostComment
+                        currentUser={this.props.currentUser}
+                        interpretationId={this.props.interpretationId}
+                        postCommentSuccess={this._addCommentSuccess}
+                        text={this.props.newCommentText}
+                        focusKey={this.props.newCommentVisibilityKey}
+                    />
+                }
 
             </div>
 		);
