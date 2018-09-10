@@ -27,7 +27,8 @@ const AutoCompleteUsers = React.createClass({
     },
 
     _onUpdateUsers(value) {
-        // this.setState({ value, loading: true, open: false });
+        this.setState({ value });
+
         delayOnceTimeAction.bind(500, this.props.searchId, () => {
             if (value === '') {
                 this.setState({ userDataSource: [], user: { id: '', displayName: '' } });
