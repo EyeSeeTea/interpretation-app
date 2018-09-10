@@ -29,11 +29,11 @@ actions.listInterpretation
     let url = 'interpretations?fields=id,type,text,created,lastUpdated,userGroupAccesses[*]'
         + ',externalAccess,publicAccess,likes,likedBy[id,name],user[id,name,userCredentials[username]]'
         + ',comments[id,created,latestUpdate,text,user[id,name,userCredentials[username]]]'
-        + ',eventReport[id,name,relativePeriods,userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
-        + ',eventChart[id,name,relativePeriods,userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
-        + ',chart[id,name,relativePeriods,userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
-        + ',map[id,name,mapViews[relativePeriods],userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
-        + ',reportTable[id,name,relativePeriods,userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
+        + ',eventReport[id,name,relativePeriods,userAccesses[*],userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
+        + ',eventChart[id,name,relativePeriods,userAccesses[*],userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
+        + ',chart[id,name,relativePeriods,userAccesses[*],userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
+        + ',map[id,name,mapViews[relativePeriods],userAccesses[*],userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
+        + ',reportTable[id,name,relativePeriods,userAccesses[*],userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
         + searchData;
 
         if (page !== undefined) {
