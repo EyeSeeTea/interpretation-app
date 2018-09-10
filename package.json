@@ -1,6 +1,6 @@
 {
   "name": "Interpretations",
-  "version": "0.1.29",
+  "version": "0.1.30",
   "description": "Interpretations app",
   "main": "src/index.html",
   "scripts": {
@@ -21,7 +21,7 @@
     "App",
     "Interpretation"
   ],
-  "author": "James Chang",
+  "author": "James Chang & EyeSeeTea Team",
   "license": "BSD-3-Clause",
   "dependencies": {
     "jquery": "^2.2.3"
