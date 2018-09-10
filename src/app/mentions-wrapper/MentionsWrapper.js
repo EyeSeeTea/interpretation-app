@@ -59,6 +59,10 @@ class MentionsWrapper extends Component {
                 const selectedUserIndex = this.state.selectedUserIndex;
 
                 switch (key) {
+                    case 'Escape':
+                        event.preventDefault();
+                        this.onUserListClose();
+                        break;
                     case 'Enter':
                         event.preventDefault();
                         if (selectedUserIndex >= 0) {

@@ -51,7 +51,7 @@ export const UserList = ({
             }}
             anchorPosition={{ top: 15, left: 0 }}
             disableAutoFocus
-            onClose={onClose}
+            onRequestClose={onClose}
             style={styles.popover}
         >
             {users.length ? (
