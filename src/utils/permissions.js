@@ -1,3 +1,5 @@
+import camelCaseToUnderscores from 'd2-utilizr/lib/camelCaseToUnderscores';
+
 const accesses = {
         "--------": "private",
         "r-------": "read",
@@ -37,8 +39,11 @@ function validateGroupAccess(getTranslation, key, parentAttributes, attributes, 
         if (invalidIds.length === 0 || invalidIds.length <= invalidPrevIds.length) {
             return null;
         } else {
-            const namespace = { key, values: parentNames.join(", ") };
-            return getTranslation('sharing_validation_group_access_must_be_subset_of_parent', namespace);
+            const i18Key = camelCaseToUnderscores(key);
+            const namespace = {
+                values: parentNames.join(", ") || getTranslation(`sharing_${i18Key}_not_found`),
+            };
+            return getTranslation(`sharing_validation_${i18Key}_must_be_subset_of_parent`, namespace);
         }
     }
 }

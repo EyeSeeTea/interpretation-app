@@ -37,7 +37,7 @@ const AutoCompleteUsers = React.createClass({
                 this.props.item.displayName = '';
             } else {
                 getD2().then(d2 => {
-                    const url = `users.json?paging=false&fields=id,displayName,userCredentials[username]` +
+                    const url = `users.json?paging=true&fields=id,displayName,userCredentials[username]` +
                         `&filter=name:ilike:${value}&filter=userCredentials.username:ilike:${value}&rootJunction=OR`;
 
                     d2.Api.getApi().get(url).then(result => {
