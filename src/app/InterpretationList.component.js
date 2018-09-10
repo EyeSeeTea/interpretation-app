@@ -138,9 +138,21 @@ const InterpretationList = React.createClass({
                 // id changed to array
                 searchTermUrl += `&filter=id:in:[${searchTerm.idList.toString()}]&order=created:desc`;
             } else if (searchTerm.moreTerms !== undefined) {
-                if (searchTerm.moreTerms.author && searchTerm.moreTerms.author.id !== '') searchTermUrl += `&filter=user.id:eq:${searchTerm.moreTerms.author.id}`;
+                if (searchTerm.moreTerms.user && searchTerm.moreTerms.user.id) {
+                    const userId = searchTerm.moreTerms.user.id;
+                    searchTermUrl += await this.getFilterByConditions([
+                        `user.id:eq:${userId}`,
+                        `comments.user.id:eq:${userId}`,
+                    ]);
+                }
 
-                if (searchTerm.moreTerms.commentator && searchTerm.moreTerms.commentator.id !== '') searchTermUrl += `&filter=comments.user.id:eq:${searchTerm.moreTerms.commentator.id}`;
+                if (searchTerm.moreTerms.text) {
+                    const text = searchTerm.moreTerms.text;
+                    searchTermUrl += await this.getFilterByConditions([
+                        `text:ilike:${text}`,
+                        `comments.text:ilike:${text}`,
+                    ]);
+                }
 
                 if (searchTerm.moreTerms.type) searchTermUrl += `&filter=type:eq:${searchTerm.moreTerms.type}`;
 
@@ -152,31 +164,39 @@ const InterpretationList = React.createClass({
 
                 if (searchTerm.moreTerms.dateModiTo) searchTermUrl += `&filter=lastUpdated:le:${dateUtil.formatDateYYYYMMDD(searchTerm.moreTerms.dateModiTo, '-')}`;
 
-                if (searchTerm.moreTerms.interpretationText) searchTermUrl += `&filter=text:ilike:${searchTerm.moreTerms.interpretationText}`;
-
                 // depending on the type, do other search..
                 if (searchTerm.moreTerms.favoritesName && searchTerm.moreTerms.type) searchTermUrl += `&filter=${this.getFavoriteSearchKeyName(searchTerm.moreTerms.type)}:ilike:${searchTerm.moreTerms.favoritesName}`;
 
-                if (searchTerm.moreTerms.commentText) searchTermUrl += `&filter=comments.text:ilike:${searchTerm.moreTerms.commentText}`;
-                
                 if (searchTerm.moreTerms.mention) searchTermUrl += `&filter=mentions:in:[${this.props.d2.currentUser.username}]`;
 
                 if (searchTerm.moreTerms.favorite)
-                    searchTermUrl += await this.getFilterForParentCondition("favorite:eq:true");
+                    searchTermUrl += await this.getFilterByParentCondition("favorite:eq:true");
 
                 if (searchTerm.moreTerms.subscribed)
-                    searchTermUrl += await this.getFilterForParentCondition("subscribed:eq:true");
+                    searchTermUrl += await this.getFilterByParentCondition("subscribed:eq:true");
             }
         }
 
         return searchTermUrl;
     },
 
-    getFilterForParentCondition(filter) {
-        return actions.getInterpretationsByParentFilter("id", filter)
+    toFilter(interpretationsObservable) {
+        // Limit Uids to avoid 413 Request too large
+        // maxUids = (maxUrlSize - urlAndOtherParamsSize) / (uidSize + encodedCommaSize)
+        const maxUids = (8192 - 1000) / (11 + 3);
+
+        return interpretationsObservable
             .toPromise()
             .then(interpretations => interpretations.map(interpretation => interpretation.id))
-            .then(interpretationIds => `&filter=id:in:[${interpretationIds.join(',')}]`)
+            .then(interpretationIds => `&filter=id:in:[${interpretationIds.slice(0, maxUids).join(',')}]`);
+    },
+
+    getFilterByConditions(conditions) {
+        return this.toFilter(actions.getAllInterpretationsByOrFilters("id", conditions));
+    },
+
+    getFilterByParentCondition(condition) {
+        return this.toFilter(actions.getInterpretationsByParentFilter("id", condition));
     },
 
     getFavoriteSearchKeyName(favoriteType) {
@@ -436,7 +456,7 @@ const InterpretationList = React.createClass({
             { type: 'reportEvent', performed: false, query: `interpretations?paging=false&fields=id&filter=eventReport.name:ilike:${keyword}` },
             { type: 'map', performed: false, query: `interpretations?paging=false&fields=id&filter=map.name:ilike:${keyword}` },
             { type: 'author', performed: false, query: `interpretations?paging=false&fields=id&filter=user.name:ilike:${keyword}` },
-            { type: 'commentator', performed: false, query: `interpretations?paging=false&fields=id&filter=comments.user.name:ilike:${keyword}` },
+            { type: 'commentator', performed: false, query: `interpretations?paging=false&fields=id&filter=comments.user.name:ilike:${keyword}` },            
             { type: 'interpretationText', performed: false, query: `interpretations?paging=false&fields=id&filter=text:ilike:${keyword}` },
             { type: 'commentText', performed: false, query: `interpretations?paging=false&fields=id&filter=comments.text:ilike:${keyword}` },
         ];
