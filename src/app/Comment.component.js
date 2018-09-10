@@ -1,6 +1,7 @@
 import React from 'react';
 import { IntlProvider, FormattedRelative } from 'react-intl';
 import { Avatar } from 'material-ui';
+import MentionsWrapper from './mentions-wrapper';
 import { otherUtils } from './utils';
 
 import actions from './actions/Comment.action';
@@ -26,6 +27,10 @@ const Comment = React.createClass({
             showContent: comments.showContent,
             hideContent: comments.hideContent,
         };
+    },
+
+    contextTypes: {
+        d2: React.PropTypes.object,
     },
 
     componentDidMount() {
@@ -97,6 +102,10 @@ const Comment = React.createClass({
         });
     },
 
+    _onTextChange(text) {
+        this._onChange({ target: { value: text } });
+    },
+
     _editCommentText() {
         const text = this.state.text;
         actions.editComment(this.props.interpretationId, this.state.data.id, text)
@@ -125,6 +134,7 @@ const Comment = React.createClass({
     },
 
     render() {
+        const { d2 } = this.context;
         const created = this.state.data.created.substring(0, 10).split('-');
         const time = this.state.data.created.substring(11, 19).split(':');
 
@@ -170,7 +180,9 @@ const Comment = React.createClass({
                                         <span className="hideContent hidden" id={divHideContent}></span>
                                     </div>
                                     <div className="hidden" id={divEditText}>
-                                        <textarea className="commentArea" value={this.state.text} onChange={this._onChange} />
+                                        <MentionsWrapper d2={d2} onUserSelect={this._onTextChange}>
+                                            <textarea className="commentArea" value={this.state.text} onChange={this._onChange} />
+                                        </MentionsWrapper>
                                         <a onClick={this._editCommentText}>OK</a><label className="linkArea">·</label><a onClick={this._cancelCommentText}>Cancel</a>
                                     </div>
                                 </div>
