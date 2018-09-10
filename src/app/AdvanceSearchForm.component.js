@@ -23,8 +23,8 @@ export default class AdvanceSearchForm extends Component {
         this._onChangeInterpretationText = this._onChangeInterpretationText.bind(this);
         this._onChangeFavoritesName = this._onChangeFavoritesName.bind(this);
         this._onChangeCommentText = this._onChangeCommentText.bind(this);
-        this._onCheckStar = this._onCheckStar.bind(this);
-        this._onCheckSubscribe = this._onCheckSubscribe.bind(this);
+        this._onCheckFavorite = this._onCheckFavorite.bind(this);
+        this._onCheckSubscribed = this._onCheckSubscribed.bind(this);
         this._onCheckMention = this._onCheckMention.bind(this);
     }
 
@@ -44,8 +44,8 @@ export default class AdvanceSearchForm extends Component {
             commentText: '',
             showFavoritesNameSearch: false,
             //favoritesNameSearchHint: '',
-            star: false,
-            subscribe: false,
+            favorite: false,
+            subscribed: false,
             mention: false,
         };
     }
@@ -75,10 +75,8 @@ export default class AdvanceSearchForm extends Component {
         if (this.state.interpretationText) summaryStr += `interpretationText: ${this.state.interpretationText}, `;
         if (this.state.favoritesName) summaryStr += `favoritesName: ${this.state.favoritesName}, `;
         if (this.state.commentText) summaryStr += `commentText: ${this.state.commentText}, `;
-
-        // TODO: Need to use Star/Subscribe/Mention..  <-- DOES THIS WORK?  
-        if (this.state.star) summaryStr += `star: ${this.state.star}, `;
-        if (this.state.subscribe) summaryStr += `subscribe: ${this.state.subscribe}, `;
+        if (this.state.favorite) summaryStr += `favorite: ${this.state.favorite}, `;
+        if (this.state.subscribed) summaryStr += `subscribed: ${this.state.subscribed}, `;
         if (this.state.mention) summaryStr += `mention: ${this.state.mention}, `;
 
         if (summaryStr) summaryStr = `${otherUtils.advSearchStr}: ${summaryStr.substring(0, summaryStr.length - 2)}`;
@@ -138,14 +136,14 @@ export default class AdvanceSearchForm extends Component {
         this.setState({ commentText: event.target.value });
     }
 
-    _onCheckStar(event) {
+    _onCheckFavorite(event) {
         setTimeout(() => {
-            this.setState((oldState) => { return { star: !oldState.star }; });    
+            this.setState((oldState) => { return { favorite: !oldState.favorite }; });
         }, 1 );
     }
-    _onCheckSubscribe(event) {
+    _onCheckSubscribed(event) {
         setTimeout(() => {
-            this.setState((oldState) => { return { subscribe: !oldState.subscribe }; });    
+            this.setState((oldState) => { return { subscribed: !oldState.subscribed }; });
         }, 1 );
     }
     _onCheckMention(event) {
@@ -246,7 +244,31 @@ export default class AdvanceSearchForm extends Component {
                                 <tbody>
                                 <tr>
                                     <td>
-                                        <Checkbox label="Mention" value={this.state.mention} checked={this.state.mention} onCheck={this._onCheckMention} iconStyle={{left: "7"}} />
+                                        <Checkbox
+                                            label="Mention"
+                                            value={this.state.mention}
+                                            checked={this.state.mention}
+                                            onCheck={this._onCheckMention}
+                                            iconStyle={{left: 7}}
+                                        />
+                                    </td>
+                                    <td>
+                                        <Checkbox
+                                            label="Favorite"
+                                            value={this.state.favorite}
+                                            checked={this.state.favorite}
+                                            onCheck={this._onCheckFavorite}
+                                            iconStyle={{left: 7}}
+                                        />
+                                    </td>
+                                    <td>
+                                        <Checkbox
+                                            label="Subscribed"
+                                            value={this.state.subscribed}
+                                            checked={this.state.subscribed}
+                                            onCheck={this._onCheckSubscribed}
+                                            iconStyle={{left: 7}}
+                                        />
                                     </td>
                                 </tr>
                                 </tbody>
