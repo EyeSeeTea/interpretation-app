@@ -158,11 +158,11 @@ const InterpretationList = React.createClass({
 
                 if (searchTerm.moreTerms.dateCreatedFrom) searchTermUrl += `&filter=created:ge:${dateUtil.formatDateYYYYMMDD(searchTerm.moreTerms.dateCreatedFrom, '-')}`;
 
-                if (searchTerm.moreTerms.dateCreatedTo) searchTermUrl += `&filter=created:le:${dateUtil.formatDateYYYYMMDD(searchTerm.moreTerms.dateCreatedTo, '-')}`;
+                if (searchTerm.moreTerms.dateCreatedTo) searchTermUrl += `&filter=created:lt:${dateUtil.formatDateYYYYMMDD(dateUtil.addDays(searchTerm.moreTerms.dateCreatedTo, 1), '-')}`;
 
                 if (searchTerm.moreTerms.dateModiFrom) searchTermUrl += `&filter=lastUpdated:ge:${dateUtil.formatDateYYYYMMDD(searchTerm.moreTerms.dateModiFrom, '-')}`;
 
-                if (searchTerm.moreTerms.dateModiTo) searchTermUrl += `&filter=lastUpdated:le:${dateUtil.formatDateYYYYMMDD(searchTerm.moreTerms.dateModiTo, '-')}`;
+                if (searchTerm.moreTerms.dateModiTo) searchTermUrl += `&filter=lastUpdated:lt:${dateUtil.formatDateYYYYMMDD(dateUtil.addDays(searchTerm.moreTerms.dateModiTo, 1), '-')}`;
 
                 // depending on the type, do other search..
                 if (searchTerm.moreTerms.favoritesName && searchTerm.moreTerms.type) searchTermUrl += `&filter=${this.getFavoriteSearchKeyName(searchTerm.moreTerms.type)}:ilike:${searchTerm.moreTerms.favoritesName}`;
