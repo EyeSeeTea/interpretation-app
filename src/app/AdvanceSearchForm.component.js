@@ -148,7 +148,7 @@ export default class AdvanceSearchForm extends Component {
                             <td className="tdTitle"><span className="searchStyle">Type</span></td>
                             <td className="tdData">
                                 <SelectField value={this.state.type} style={fontStyle} menuStyle={menuStyle} hintStyle={hintStyle} onChange={this._typeChanged}>
-                                    <MenuItem value="" primaryText="No Selection" />
+                                    <MenuItem value="" primaryText="All" />
                                     <MenuItem value="CHART" primaryText="Chart" />
                                     <MenuItem value="REPORT_TABLE" primaryText="Report Table" />
                                     <MenuItem value="EVENT_CHART" primaryText="Event Chart" />
