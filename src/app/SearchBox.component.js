@@ -99,14 +99,13 @@ export default class SearchBox extends Component {
     render() {
         const actions = [
             <FlatButton
+                label="Reset"
+                onClick={this._advSearchFormReset}
+            />,
+            <FlatButton
                 label="Search"
                 primary
                 onClick={this._performAdvancedSearch}
-            />,
-            <FlatButton
-                label="Reset"
-                primary
-                onClick={this._advSearchFormReset}
             />,
         ];
 
