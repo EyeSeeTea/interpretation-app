@@ -32,6 +32,11 @@ export const dateUtil = {
 
         return `${monthStr}${separator}${dateStr}${separator}${date.getFullYear()}`;
     },
+    addDays(date, nDays) {
+        let newDate = new Date(date);
+        newDate.setDate(date.getDate() + nDays);
+        return newDate;
+    },
 };
 
 export const restUtil = {
