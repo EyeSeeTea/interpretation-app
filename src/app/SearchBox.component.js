@@ -62,8 +62,10 @@ export default class SearchBox extends Component {
 
     _advSearchFormReset() {
         const { advancedSearchForm } = this.refs;
-        if (advancedSearchForm)
+        if (advancedSearchForm) {
             advancedSearchForm.resetForm();
+            setTimeout(() => this._performAdvancedSearch(), 1);
+        }
     }
 
     _performAdvancedSearch() {
