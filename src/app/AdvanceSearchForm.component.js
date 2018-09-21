@@ -240,15 +240,6 @@ export default class AdvanceSearchForm extends Component {
                                     </td>
                                     <td>
                                         <Checkbox
-                                            label="Favorite"
-                                            value={this.state.favorite}
-                                            checked={this.state.favorite}
-                                            onCheck={this._onCheckFavorite}
-                                            iconStyle={{left: 7}}
-                                        />
-                                    </td>
-                                    <td>
-                                        <Checkbox
                                             label="Subscribed"
                                             value={this.state.subscribed}
                                             checked={this.state.subscribed}
