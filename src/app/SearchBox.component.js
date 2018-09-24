@@ -62,8 +62,10 @@ export default class SearchBox extends Component {
 
     _advSearchFormReset() {
         const { advancedSearchForm } = this.refs;
-        if (advancedSearchForm)
+        if (advancedSearchForm) {
             advancedSearchForm.resetForm();
+            setTimeout(() => this._performAdvancedSearch(), 1);
+        }
     }
 
     _performAdvancedSearch() {
@@ -99,14 +101,13 @@ export default class SearchBox extends Component {
     render() {
         const actions = [
             <FlatButton
+                label="Reset"
+                onClick={this._advSearchFormReset}
+            />,
+            <FlatButton
                 label="Search"
                 primary
                 onClick={this._performAdvancedSearch}
-            />,
-            <FlatButton
-                label="Reset"
-                primary
-                onClick={this._advSearchFormReset}
             />,
         ];
 
