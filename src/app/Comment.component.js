@@ -6,6 +6,7 @@ import { Avatar } from 'material-ui';
 import MentionsWrapper from './mentions-wrapper';
 import { otherUtils } from './utils';
 import actions from './actions/Comment.action';
+import { getShortText } from '../utils/content';
 
 const Comment = React.createClass({
     propTypes: {
@@ -20,7 +21,7 @@ const Comment = React.createClass({
 
     styles: {
         avatar: { fontSize: 15, fontWeight: 'bold' },
-        textParser: { display: "inline" },
+        textParser: { display: "inline", whiteSpace: "pre-line", overflowWrap: "break-word" },
     },
 
     getInitialState() {
@@ -33,12 +34,6 @@ const Comment = React.createClass({
 
     contextTypes: {
         d2: React.PropTypes.object,
-    },
-
-    maxWords: 30,
-
-    _getWords(str, start, end) {
-        return str.split(/\s+/).slice(start, end).join(' ');
     },
 
     _reply() {
@@ -69,7 +64,8 @@ const Comment = React.createClass({
     },
 
     _editCommentText() {
-        const { editText } = this.state;
+        const editText = this.state.editText.trim();
+
         actions.editComment(this.props.interpretationId, this.props.data.id, editText)
 			.subscribe(() => {
                 this.setState({ text: editText, editMode: false });
@@ -100,8 +96,7 @@ const Comment = React.createClass({
             initChars += userName[userName.length - 1][0];
         }
 
-        const displayText = showAllText ? text : this._getWords(text, 0, this.maxWords);
-        const showMoreLink = (displayText !== text) && !showAllText;
+        const { showMoreLink, displayText } = getShortText(text, {showAllText, maxWords: 30})
 
         return (
             <table>

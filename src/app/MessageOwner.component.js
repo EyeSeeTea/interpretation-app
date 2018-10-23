@@ -5,6 +5,7 @@ import { Parser as RichTextParser } from '@dhis2/d2-ui-rich-text';
 import MentionsWrapper from './mentions-wrapper';
 import { otherUtils } from './utils';
 import actions from './actions/Interpretation.action';
+import { getShortText } from '../utils/content';
 
 const MessageOwner = React.createClass({
     propTypes: {
@@ -17,7 +18,7 @@ const MessageOwner = React.createClass({
     },
 
     styles: {
-        textParser: {display: "inline"},
+        textParser: { display: "inline", whiteSpace: "pre-line", overflowWrap: "break-word" },
     },
 
     getInitialState() {
@@ -39,10 +40,6 @@ const MessageOwner = React.createClass({
         d2: React.PropTypes.object,
     },
 
-    getWords(str, start, end) {
-        return str.split(/\s+/).slice(start, end).join(' ');
-    },
-
     _onChange(e) {
         this.setState({ editText : e.target.value });
     },
@@ -56,7 +53,7 @@ const MessageOwner = React.createClass({
     },
 
     _editInterpretationText() {
-        const { editText } = this.state;
+        const editText = this.state.editText.trim();
 
         actions.editInterpretation(this.props.data, this.props.data.id, editText)
 			.subscribe(() => {
@@ -77,13 +74,11 @@ const MessageOwner = React.createClass({
         const { text, editMode } = this.props;
         const { showAllText, editText } = this.state;
 
-        const maxWords = 50;
         const created = this.props.data.created.substring(0, 10).split('-');
         const month = this._convertToNumber(created[1]) - 1;
         const day = this._convertToNumber(created[2]);
         const date = new Date(created[0], month, day);
-        const displayText = showAllText ? text : this.getWords(text, 0, maxWords);
-        const showMoreLink = (displayText !== text) && !showAllText;
+        const { showMoreLink, displayText } = getShortText(text, {showAllText, maxWords: 50})
 
         return (
 			<div className="interpretationDescSection">
