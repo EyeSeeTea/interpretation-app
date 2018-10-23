@@ -53,7 +53,7 @@ const MessageOwner = React.createClass({
     },
 
     _editInterpretationText() {
-        const editText = this.state.editText.trim();
+        const editText = this.state.editText;
 
         actions.editInterpretation(this.props.data, this.props.data.id, editText)
 			.subscribe(() => {

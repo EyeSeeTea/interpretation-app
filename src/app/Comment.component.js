@@ -64,7 +64,7 @@ const Comment = React.createClass({
     },
 
     _editCommentText() {
-        const editText = this.state.editText.trim();
+        const editText = this.state.editText;
 
         actions.editComment(this.props.interpretationId, this.props.data.id, editText)
 			.subscribe(() => {

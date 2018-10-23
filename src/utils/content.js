@@ -1,4 +1,6 @@
-export function getShortText(text, { showAllText, maxWords }) {
+export function getShortText(originalText, { showAllText, maxWords }) {
+    const text = originalText.trim();
+
     if (showAllText) {
         return { showMoreLink: false, displayText: text };
     } else {
