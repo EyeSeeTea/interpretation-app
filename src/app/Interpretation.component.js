@@ -34,6 +34,7 @@ const Interpretation = React.createClass({
             comments: this.props.data.comments,
             isTooltipActive: false,
             isSharingDialogOpen: false,
+            editMode: false,
         };
     },
 
@@ -366,21 +367,16 @@ const Interpretation = React.createClass({
     },
 
     _showEditHandler() {
-        const divEditText = `edit_${this.props.data.id}`;
-        const divShowText = `show_${this.props.data.id}`;
-        $(`#${divEditText}`).show();
-        $(`#${divShowText}`).hide();
+        this.setState({ editMode: true });
     },
 
     _editInterpretationTextSuccess(text) {
         this.props.data.text = text;
+        this.setState({ text, editMode: false});
+    },
 
-        const divEditText = `edit_${this.props.data.id}`;
-        const divShowText = `show_${this.props.data.id}`;
-        $(`#${divEditText}`).hide();
-        $(`#${divShowText}`).show();
-
-        this.setState({ text });
+    _editInterpretationTextCancel() {
+        this.setState({ editMode: false });
     },
 
     _openPeopleLikedHandler() {
@@ -495,7 +491,15 @@ const Interpretation = React.createClass({
 
                     <div id={relativePeriodMsgId} className="relativePeriodWarming"></div>
 
-                    <MessageOwner key={messageOwnerKey} data={this.props.data} sourceLink={sourceLink} text={this.state.text} editInterpretationTextSuccess={this._editInterpretationTextSuccess} />
+                    <MessageOwner
+                        key={messageOwnerKey}
+                        data={this.props.data}
+                        sourceLink={sourceLink}
+                        text={this.state.text}
+                        editMode={this.state.editMode}
+                        editInterpretationTextSuccess={this._editInterpretationTextSuccess}
+                        editInterpretationTextCancel={this._editInterpretationTextCancel}
+                    />
 
                     <div className="linkTag">
                         {otherUtils.findItemFromList(this.props.data.likedBy, 'id', this.props.currentUser.id) === undefined ? <a onClick={this._likeHandler} id={likeLinkTagId}>Like</a> : <a onClick={this._unlikeHandler} id={likeLinkTagId}>Unlike</a> } 
