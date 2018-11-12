@@ -96,7 +96,9 @@ const InterpretationList = React.createClass({
             } else {
                 data.userId = interpretation.user.id;
                 data.user = interpretation.user.name;
-                data.username = interpretation.user.userCredentials.username;
+                data.username = interpretation.user.userCredentials
+                    ? interpretation.user.userCredentials.username
+                    : 'UNKNOWN';
             }
             // data.comments = JSON.stringify(interpretation.comments);
 
