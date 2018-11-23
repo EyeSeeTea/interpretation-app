@@ -415,7 +415,7 @@ const Interpretation = React.createClass({
         } else if (this.props.data.type === 'CHART') {
             link = 'dhis-web-visualizer';
         } else if (this.props.data.type === 'MAP') {
-            link = 'dhis-web-mapping';
+            link = 'dhis-web-maps';
         } else if (this.props.data.type === 'EVENT_REPORT') {
             link = 'dhis-web-event-reports';
         } else if (this.props.data.type === 'EVENT_CHART') {
