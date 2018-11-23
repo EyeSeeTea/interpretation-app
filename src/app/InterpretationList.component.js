@@ -86,7 +86,8 @@ const InterpretationList = React.createClass({
         for (let i = 0; i < itemList.length; i++) {
             const interpretation = itemList[i];
 
-            let data = Object.assign({}, interpretation);
+            let data = {};
+            data = interpretation;
 
             if (interpretation.user === undefined) {
                 data.userId = '';
@@ -95,7 +96,9 @@ const InterpretationList = React.createClass({
             } else {
                 data.userId = interpretation.user.id;
                 data.user = interpretation.user.name;
-                data.username = interpretation.user.userCredentials.username;
+                data.username = interpretation.user.userCredentials
+                    ? interpretation.user.userCredentials.username
+                    : 'UNKNOWN';
             }
             // data.comments = JSON.stringify(interpretation.comments);
 
