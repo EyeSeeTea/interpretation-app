@@ -2,7 +2,7 @@ import React from 'react';
 import { AutoComplete } from 'material-ui';
 import { delayOnceTimeAction, restUtil, otherUtils } from './utils';
 import { getInstance as getD2 } from 'd2/lib/d2';
-
+import MenuItem from 'material-ui/MenuItem';
 
 const AutoCompleteSearchKeyword = React.createClass({
     propTypes: {
@@ -228,30 +228,37 @@ const AutoCompleteSearchKeyword = React.createClass({
             });
     },
 
+    menuItem(children) {
+        return (<MenuItem className="autoCompleteMenuItem">{children}</MenuItem>);
+    },
+
     createHeaderPart(text, title) {
         return { text,
-                value: <div className="divSearchItemHeaderPart">
+                value: this.menuItem(
+                        <div className="divSearchItemHeaderPart">
                             <span className="spanSearchItemHeaderName">{title}</span>
-                        </div>,
+                        </div>),
                 source: this.getEmptyKeywordObj() };
     },
 
     createSelectionObj(source, imageSrc, title, sizeOverride) {
         const props = (sizeOverride) ? { width: '14px', height: '14px' } : {};
         return { text: source.text,
-                value: <div value={source.id} className="searchItemStyle">
+                value: this.menuItem(
+                        <div value={source.id} className="searchItemStyle">
                             <img alt={title} src={imageSrc} title={title} {...props} />
                             <span className="searchItemName">{source.text}</span>
-                        </div>,
+                        </div>),
                 source };
     },
 
     createPlaceHolderObj(text, imageSrc, title) {
         return { text,
-                value: <div className="divLoadingPlaceHolder">
+                value: this.menuItem(
+                    <div className="divLoadingPlaceHolder">
                         <img src="images/loadingSmall.gif" /> Loading -&nbsp;
                         <img alt={text} height="14" width="14" src={imageSrc} /> {title}
-                    </div>,
+                    </div>),
                 source: this.getEmptyKeywordObj() };
     },
 
@@ -275,7 +282,10 @@ const AutoCompleteSearchKeyword = React.createClass({
         return otherUtils.checkAdvancedSearch(this.state.value);
     },
 
-    _onUpdatekeywords(value) {
+    _onUpdatekeywords(value, dataSource, params) {
+        if (params.source !== "change")
+            return;
+
         let changeStatus = '';
         // Clear the dropdown List
         this.setState({ keywordDataSource: [] });

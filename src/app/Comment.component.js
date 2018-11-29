@@ -1,10 +1,12 @@
-
 import React from 'react';
 import { IntlProvider, FormattedRelative } from 'react-intl';
+import { Parser as RichTextParser } from '@dhis2/d2-ui-rich-text';
 import { Avatar } from 'material-ui';
-import { otherUtils } from './utils';
 
+import MentionsWrapper from './mentions-wrapper';
+import { otherUtils } from './utils';
 import actions from './actions/Comment.action';
+import { getShortText } from '../utils/content';
 
 const Comment = React.createClass({
     propTypes: {
@@ -14,161 +16,120 @@ const Comment = React.createClass({
         currentUser: React.PropTypes.object,
         interpretationId: React.PropTypes.string,
         deleteCommentSuccess: React.PropTypes.func,
+        onReply: React.PropTypes.func,
+    },
+
+    styles: {
+        avatar: { fontSize: 15, fontWeight: 'bold' },
+        textParser: { display: "inline", whiteSpace: "pre-line", overflowWrap: "break-word" },
     },
 
     getInitialState() {
-        const comments = this._setComments(this.props.data.text, this.props.data.text);
-
         return {
-            data: this.props.data,
-            text: comments.text,
-            oldText: comments.text,
-            showContent: comments.showContent,
-            hideContent: comments.hideContent,
+            text: this.props.data.text,
+            showAllText: false,
+            editMode: false,
         };
     },
 
-    componentDidMount() {
-        this._displayContent();
+    contextTypes: {
+        d2: React.PropTypes.object,
     },
 
-    _displayContent() {
-        const showContent = otherUtils.parseStringToHTML(this.state.showContent);
-        const hideContent = otherUtils.parseStringToHTML(this.state.hideContent);
-
-        const divShowContent = `showContent_${this.props.data.id}`;
-        const divHideContent = `hideContent_${this.props.data.id}`;
-
-        $(`#${divShowContent}`).html('');
-        $(`#${divHideContent}`).html('');
-        $(`#${divShowContent}`).append(showContent);
-        $(`#${divHideContent}`).append(hideContent);
-    },
-
-    maxWords: 30,
-
-    _getWords(str, start, end) {
-        return str.split(/\s+/).slice(start, end).join(' ');
-    },
-
-    _setComments(content, oldText) {
-        let hideContent = '';
-        const noWords = content.split(/\s+/).length;
-        if (noWords >= this.maxWords) {
-            hideContent = this._getWords(content, this.maxWords, noWords);
-        }
-
-        return {
-            text: content,
-            showContent: this._getWords(content, 0, this.maxWords),
-            hideContent,
-            oldText,
-        };
+    _reply() {
+        this.props.onReply && this.props.onReply(this.props.data);
     },
 
     _deleteHandler() {
-        actions.deleteComment(this.props.interpretationId, this.state.data.id)
+        actions.deleteComment(this.props.interpretationId, this.props.data.id)
 			.subscribe(() => {
-    this.props.deleteCommentSuccess(this.state.data.id);
-		});
+                this.props.deleteCommentSuccess(this.props.data.id);
+		    });
     },
 
     _showEditHandler() {
-        const divEditText = `edit_${this.props.data.id}`;
-        const divShowText = `show_${this.props.data.id}`;
-
-        $(`#${divEditText}`).show();
-        $(`#${divShowText}`).hide();
+        this.setState({ editMode: true, editText: this.state.text });
     },
 
     _handleClick(e) {
-        const linkTag = $(e.target);
-        linkTag.closest('.interpretationText').find('.hideContent').show();
-        linkTag.hide();
+        this.setState({ showAllText: true });
     },
 
     _onChange(e) {
-        this.setState(this._setComments(e.target.value, this.state.oldText), function () {
-            this._displayContent();
-        });
+        this.setState({ editText: e.target.value });
+    },
+
+    _onTextChange(text) {
+        this._onChange({ target: { value: text } });
     },
 
     _editCommentText() {
-        const text = this.state.text;
-        actions.editComment(this.props.interpretationId, this.state.data.id, text)
-			.subscribe(() => {
-    this.setState(this._setComments(this.state.text, this.state.text), function () {
-        this._displayContent();
-    });
-    const divEditText = `edit_${this.props.data.id}`;
-    const divShowText = `show_${this.props.data.id}`;
+        const editText = this.state.editText;
 
-    $(`#${divEditText}`).hide();
-    $(`#${divShowText}`).show();
-		});
+        actions.editComment(this.props.interpretationId, this.props.data.id, editText)
+			.subscribe(() => {
+                this.setState({ text: editText, editMode: false });
+            });
     },
 
     _cancelCommentText() {
-        this.setState(this._setComments(this.state.oldText, this.state.oldText), function () {
-            this._displayContent();
-
-            const divEditText = `edit_${this.props.data.id}`;
-            const divShowText = `show_${this.props.data.id}`;
-
-            $(`#${divEditText}`).hide();
-            $(`#${divShowText}`).show();
-        });
+        this.setState({ editMode: false });
     },
 
     render() {
-        const created = this.state.data.created.substring(0, 10).split('-');
-        const time = this.state.data.created.substring(11, 19).split(':');
+        const { d2 } = this.context;
+        const { data } = this.props;
+        const { text, showAllText, editMode, editText } = this.state;
 
-        let month = otherUtils.convertToNumber(created[1]);
-        month = month - 1;
+        const created = data.created.substring(0, 10).split('-');
+        const time = data.created.substring(11, 19).split(':');
+        const month = otherUtils.convertToNumber(created[1]) - 1;
         const day = otherUtils.convertToNumber(created[2]);
         const hour = otherUtils.convertToNumber(time[0]);
         const minute = otherUtils.convertToNumber(time[1]);
         const second = otherUtils.convertToNumber(time[2]);
-
-
         const date = new Date(eval(created[0]), month, day, hour, minute, second);
 
-        const userName = this.state.data.user.name.split(' ');
+        const userName = data.user.name.split(' ');
         let initChars = userName[0][0];
         if (userName.length > 1) {
             initChars += userName[userName.length - 1][0];
         }
 
-        const divEditText = `edit_${this.props.data.id}`;
-        const divShowText = `show_${this.props.data.id}`;
-        const divShowContent = `showContent_${this.props.data.id}`;
-        const divHideContent = `hideContent_${this.props.data.id}`;
-        const style = { fontSize: 15, fontWeight: 'bold' };
-        let clazzName = 'moreLink';
-        if (this.state.hideContent.length === 0) {
-            clazzName += ' hidden';
-        }
-
+        const { showMoreLink, displayText } = getShortText(text, {showAllText, maxWords: 30})
 
         return (
             <table>
                 <tbody>
                     <tr>
-                        <td className="valignTop"><Avatar color="black" size={32} style={style}>{initChars}</Avatar></td>
+                        <td className="valignTop">
+                            <Avatar color="black" size={32} style={this.styles.avatar}>{initChars}</Avatar>
+                        </td>
+
                         <td>
                             <div className="interpretationComment">
                                 <div className="interpretationText">
-                                     <div id={divShowText} >
-                                        <a className="bold userLink">{this.state.data.user.name} </a>
-                                        <span id={divShowContent}></span>
-                                        <span className={clazzName} onClick={this._handleClick}> ... more</span>
-                                        <span className="hideContent hidden" id={divHideContent}></span>
-                                    </div>
-                                    <div className="hidden" id={divEditText}>
-                                        <textarea className="commentArea" value={this.state.text} onChange={this._onChange} />
-                                        <a onClick={this._editCommentText}>OK</a><label className="linkArea">·</label><a onClick={this._cancelCommentText}>Cancel</a>
-                                    </div>
+                                    {!editMode ?
+                                        <div>
+                                            <RichTextParser style={this.styles.textParser}>
+                                                {displayText}
+                                            </RichTextParser>
+
+                                            {showMoreLink &&
+                                                <span className="moreLink" onClick={this._handleClick}> ... more</span>
+                                            }
+                                        </div>
+                                        :
+                                        <div>
+                                            <MentionsWrapper d2={d2} onUserSelect={this._onTextChange}>
+                                                <textarea className="commentArea" value={editText} onChange={this._onChange} />
+                                            </MentionsWrapper>
+
+                                            <a onClick={this._editCommentText}>OK</a><label className="linkArea">
+                                            ·
+                                            </label><a onClick={this._cancelCommentText}>Cancel</a>
+                                        </div>
+                                    }
                                 </div>
 
                                 <span className="tipText">
@@ -176,8 +137,12 @@ const Comment = React.createClass({
                                         <FormattedRelative value={date} />
                                     </IntlProvider>
                                 </span>
-                                <span className={this.props.currentUser.id === this.state.data.user.id || this.props.currentUser.superUser ? '' : 'hidden'} >
-                                   <label className="linkArea"></label><a onClick={this._showEditHandler}>Edit</a>
+
+                                <label className="linkArea"></label>
+                                <a onClick={this._reply}>Reply</a>
+
+                                <span className={this.props.currentUser.id === data.user.id || this.props.currentUser.superUser ? '' : 'hidden'} >
+                                   <label className="linkArea">·</label><a onClick={this._showEditHandler}>Edit</a>
                                    <label className="linkArea">·</label><a onClick={this._deleteHandler}>Delete</a>
                                 </span>
                             </div>

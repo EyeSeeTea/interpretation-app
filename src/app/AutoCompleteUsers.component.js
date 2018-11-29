@@ -27,7 +27,8 @@ const AutoCompleteUsers = React.createClass({
     },
 
     _onUpdateUsers(value) {
-        // this.setState({ value, loading: true, open: false });
+        this.setState({ value });
+
         delayOnceTimeAction.bind(500, this.props.searchId, () => {
             if (value === '') {
                 this.setState({ userDataSource: [], user: { id: '', displayName: '' } });
@@ -36,7 +37,8 @@ const AutoCompleteUsers = React.createClass({
                 this.props.item.displayName = '';
             } else {
                 getD2().then(d2 => {
-                    const url = `users.json?paging=false&fields=id,displayName,userCredentials[username]&filter=name:ilike:${value}`;
+                    const url = `users.json?paging=true&fields=id,displayName,userCredentials[username]` +
+                        `&filter=name:ilike:${value}&filter=userCredentials.username:ilike:${value}&rootJunction=OR`;
 
                     d2.Api.getApi().get(url).then(result => {
                         const userList = [];

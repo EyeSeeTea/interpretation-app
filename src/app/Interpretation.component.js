@@ -1,12 +1,14 @@
 
 import React from 'react';
 import { Dialog, FlatButton } from 'material-ui';
+import SharingDialog from './sharing/SharingDialog.component';
 import MessageOwner from './MessageOwner.component';
 import CommentArea from './CommentArea.component';
 import AccessInfo from './AccessInfo.component';
 import { getInstance as getD2 } from 'd2/lib/d2';
 import { delayOnceTimeAction, restUtil, dhisUtils, otherUtils } from './utils';
 import { dataInfo } from './data';
+import { validateSharing } from '../utils/permissions';
 
 import actions from './actions/Interpretation.action';
 import Tooltip from 'rc-tooltip';
@@ -27,9 +29,17 @@ const Interpretation = React.createClass({
             likedBy: this.props.data.likedBy,
             open: false,
             openAccessInfo: false,
+            newCommentVisibilityKey: null,
+            newCommentText: "",
             comments: this.props.data.comments,
             isTooltipActive: false,
+            isSharingDialogOpen: false,
+            editMode: false,
         };
+    },
+
+    contextTypes: {
+        d2: React.PropTypes.object,
     },
 
     componentDidMount() {
@@ -287,6 +297,14 @@ const Interpretation = React.createClass({
 		});
     },
 
+    _openSharingDialog() {
+        this.setState({ isSharingDialogOpen: true });
+    },
+
+    _closeSharingDialog() {
+        this.setState({ isSharingDialogOpen: false });
+    },
+
     _starHandler( e ) {
         //const starImgTag = this._getTopRightIconImgByType( 'star' );
         this._switchMark( 'star', 'favorite', 'marked.png', 'unmarked.png', 'Starred', 'Not Starred' );
@@ -334,22 +352,31 @@ const Interpretation = React.createClass({
         }        
     },
 
+    _replyInterpretation() {
+        this._replyToUser(this.props.data.username);
+    },
+
+    _replyComment(comment) {
+        this._replyToUser(comment.user.userCredentials.username);
+    },
+
+    _replyToUser(replyToUsername) {
+        const insertReplyMention = replyToUsername && this.props.currentUser.username !== replyToUsername;
+        const newCommentText = insertReplyMention ? `@${replyToUsername} ` : "";
+        this.setState({ newCommentVisibilityKey: new Date(), newCommentText });
+    },
+
     _showEditHandler() {
-        const divEditText = `edit_${this.props.data.id}`;
-        const divShowText = `show_${this.props.data.id}`;
-        $(`#${divEditText}`).show();
-        $(`#${divShowText}`).hide();
+        this.setState({ editMode: true });
     },
 
     _editInterpretationTextSuccess(text) {
         this.props.data.text = text;
+        this.setState({ text, editMode: false});
+    },
 
-        const divEditText = `edit_${this.props.data.id}`;
-        const divShowText = `show_${this.props.data.id}`;
-        $(`#${divEditText}`).hide();
-        $(`#${divShowText}`).show();
-
-        this.setState({ text });
+    _editInterpretationTextCancel() {
+        this.setState({ editMode: false });
     },
 
     _openPeopleLikedHandler() {
@@ -388,7 +415,7 @@ const Interpretation = React.createClass({
         } else if (this.props.data.type === 'CHART') {
             link = 'dhis-web-visualizer';
         } else if (this.props.data.type === 'MAP') {
-            link = 'dhis-web-mapping';
+            link = 'dhis-web-maps';
         } else if (this.props.data.type === 'EVENT_REPORT') {
             link = 'dhis-web-event-reports';
         } else if (this.props.data.type === 'EVENT_CHART') {
@@ -403,6 +430,13 @@ const Interpretation = React.createClass({
         window.location.href = this._getSourceInterpretationLink();
     },
 
+    _validateSharing(updatedAttributes, prevAttributes) {
+        const { d2 } = this.context;
+        const { data } = this.props;
+        const getTranslation = d2.i18n.getTranslation.bind(d2.i18n);
+        return validateSharing(getTranslation, data.objData, updatedAttributes, prevAttributes);
+    },
+
     render() {
         const likeLinkTagId = `likeLink_${this.props.data.id}`;
         const interpretationTagId = `interpretation_${this.props.data.id}`;
@@ -413,6 +447,9 @@ const Interpretation = React.createClass({
         const likeDialogKey = `likeDialogKey_${this.props.data.id}`;
         const relativePeriodMsgId = `relativePeriodMsg_${this.props.data.id}`;
         const sourceLink = this._getSourceInterpretationLink();
+        const { isSharingDialogOpen } = this.state;
+
+        const { newCommentText, newCommentVisibilityKey } = this.state;
 
         const peopleLikedByDialogActions = [
             <FlatButton type="button"
@@ -454,15 +491,34 @@ const Interpretation = React.createClass({
 
                     <div id={relativePeriodMsgId} className="relativePeriodWarming"></div>
 
-                    <MessageOwner key={messageOwnerKey} data={this.props.data} sourceLink={sourceLink} text={this.state.text} editInterpretationTextSuccess={this._editInterpretationTextSuccess} />
+                    <MessageOwner
+                        key={messageOwnerKey}
+                        data={this.props.data}
+                        sourceLink={sourceLink}
+                        text={this.state.text}
+                        editMode={this.state.editMode}
+                        editInterpretationTextSuccess={this._editInterpretationTextSuccess}
+                        editInterpretationTextCancel={this._editInterpretationTextCancel}
+                    />
 
                     <div className="linkTag">
                         {otherUtils.findItemFromList(this.props.data.likedBy, 'id', this.props.currentUser.id) === undefined ? <a onClick={this._likeHandler} id={likeLinkTagId}>Like</a> : <a onClick={this._unlikeHandler} id={likeLinkTagId}>Unlike</a> } 
+                        <label className="linkArea">·</label>
+                        <a onClick={this._replyInterpretation}>Reply</a>
                         <span className={this.props.currentUser.id === this.props.data.userId || this.props.currentUser.superUser ? '' : 'hidden'} >
                         <label className="linkArea">·</label><a onClick={this._showEditHandler}>Edit</a>
+                        <label className="linkArea">·</label><a onClick={this._openSharingDialog}>Share</a>
                         <label className="linkArea">·</label><a onClick={this._deleteHandler}>Delete</a>
                         </span>
                     </div>
+
+                    <SharingDialog
+                        open={isSharingDialogOpen}
+                        id={this.props.data.id}
+                        type="interpretation"
+                        onRequestClose={this._closeSharingDialog}
+                        validate={this._validateSharing}
+                    />
 
                      <div className="interpretationCommentArea">
                         <div id={peopleLikeTagId} className={this.state.likes > 0 ? 'greyBackground likeArea paddingLeft' : 'hidden greyBackground likeArea'}>
@@ -477,8 +533,18 @@ const Interpretation = React.createClass({
                             <span> liked this</span><label className="linkArea">·</label><span>{this.state.comments.length} people commented</span>
                             <br />
                         </div>
-                        <CommentArea key={commentAreaKey} comments={this.state.comments} likes={this.state.likes} interpretationId={this.props.data.id} likedBy={this.state.likedBy} currentUser={this.props.currentUser} />
 
+                        <CommentArea
+                            key={commentAreaKey}
+                            comments={this.state.comments}
+                            likes={this.state.likes}
+                            interpretationId={this.props.data.id}
+                            likedBy={this.state.likedBy}
+                            currentUser={this.props.currentUser}
+                            newCommentVisibilityKey={newCommentVisibilityKey}
+                            newCommentText={newCommentText}
+                            onReply={this._replyComment}
+                        />
 
                         <Dialog
                             title="People"

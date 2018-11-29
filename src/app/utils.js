@@ -32,6 +32,11 @@ export const dateUtil = {
 
         return `${monthStr}${separator}${dateStr}${separator}${date.getFullYear()}`;
     },
+    addDays(date, nDays) {
+        let newDate = new Date(date);
+        newDate.setDate(date.getDate() + nDays);
+        return newDate;
+    },
 };
 
 export const restUtil = {
@@ -52,7 +57,7 @@ export const restUtil = {
     requestPostHelper(d2Api, url, value, successFunc, returnContentType) {
         const returnContType = (returnContentType === undefined) ? 'text/plain' : returnContentType;
         restUtil.requestHelper(d2Api, url, value, successFunc, 'POST', returnContType);
-        /*d2Api.post(url, value, { contentType: 'text/plain' })
+        /*d2Api.post(url, value, { headers: { "Content-Type": 'text/plain' } })
             .then(successFunc)
             .catch(errorResponse => {
                 console.log(errorResponse);
@@ -62,7 +67,7 @@ export const restUtil = {
     requestHelper(d2Api, url, value, successFunc, requestType, returnContentType) {
         const reqType = (requestType === undefined) ? 'POST' : requestType;
         const returnContType = (returnContentType === undefined) ? 'text/plain' : returnContentType;
-        d2Api.request(reqType, url, value, { contentType: returnContType })
+        d2Api.request(reqType, url, value, { headers: { "Content-Type": returnContType } })
         .then(successFunc)
         .catch(errorResponse => {
             console.log(errorResponse);

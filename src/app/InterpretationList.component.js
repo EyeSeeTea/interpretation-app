@@ -1,6 +1,6 @@
 import React from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
-import { CircularProgress } from 'material-ui';
+import CircularProgress from 'material-ui/CircularProgress';
 import Interpretation from './Interpretation.component';
 import actions from './actions/Interpretation.action';
 import { dataInfo } from './data';
@@ -21,7 +21,12 @@ const InterpretationList = React.createClass({
             hasMore: true,
             items: [],
             searchTerm: undefined,
-            currentUser: { name: this.props.d2.currentUser.displayName, id: this.props.d2.currentUser.id, superUser: this.isSuperUser() },
+            currentUser: {
+                name: this.props.d2.currentUser.displayName,
+                username: this.props.d2.currentUser.username,
+                id: this.props.d2.currentUser.id,
+                superUser: this.isSuperUser(),
+            },
             d2Api: this.props.d2.Api.getApi(),
         };
     },
@@ -87,9 +92,13 @@ const InterpretationList = React.createClass({
             if (interpretation.user === undefined) {
                 data.userId = '';
                 data.user = 'UNKNOWN';
+                data.username = 'UNKNOWN';
             } else {
                 data.userId = interpretation.user.id;
                 data.user = interpretation.user.name;
+                data.username = interpretation.user.userCredentials
+                    ? interpretation.user.userCredentials.username
+                    : 'UNKNOWN';
             }
             // data.comments = JSON.stringify(interpretation.comments);
 
@@ -123,7 +132,7 @@ const InterpretationList = React.createClass({
         return dataList;
     },
 
-    getSearchTerms(searchTerm) {
+    async getSearchTerms(searchTerm) {
         let searchTermUrl = '';
 
         if (searchTerm !== undefined) {
@@ -132,38 +141,65 @@ const InterpretationList = React.createClass({
                 // id changed to array
                 searchTermUrl += `&filter=id:in:[${searchTerm.idList.toString()}]&order=created:desc`;
             } else if (searchTerm.moreTerms !== undefined) {
-                if (searchTerm.moreTerms.author && searchTerm.moreTerms.author.id !== '') searchTermUrl += `&filter=user.id:eq:${searchTerm.moreTerms.author.id}`;
+                if (searchTerm.moreTerms.user && searchTerm.moreTerms.user.id) {
+                    const userId = searchTerm.moreTerms.user.id;
+                    searchTermUrl += await this.getFilterByConditions([
+                        `user.id:eq:${userId}`,
+                        `comments.user.id:eq:${userId}`,
+                    ]);
+                }
 
-                if (searchTerm.moreTerms.commentator && searchTerm.moreTerms.commentator.id !== '') searchTermUrl += `&filter=comments.user.id:eq:${searchTerm.moreTerms.commentator.id}`;
+                if (searchTerm.moreTerms.text) {
+                    const text = searchTerm.moreTerms.text;
+                    searchTermUrl += await this.getFilterByConditions([
+                        `text:ilike:${text}`,
+                        `comments.text:ilike:${text}`,
+                    ]);
+                }
 
                 if (searchTerm.moreTerms.type) searchTermUrl += `&filter=type:eq:${searchTerm.moreTerms.type}`;
 
                 if (searchTerm.moreTerms.dateCreatedFrom) searchTermUrl += `&filter=created:ge:${dateUtil.formatDateYYYYMMDD(searchTerm.moreTerms.dateCreatedFrom, '-')}`;
 
-                if (searchTerm.moreTerms.dateCreatedTo) searchTermUrl += `&filter=created:le:${dateUtil.formatDateYYYYMMDD(searchTerm.moreTerms.dateCreatedTo, '-')}`;
+                if (searchTerm.moreTerms.dateCreatedTo) searchTermUrl += `&filter=created:lt:${dateUtil.formatDateYYYYMMDD(dateUtil.addDays(searchTerm.moreTerms.dateCreatedTo, 1), '-')}`;
 
                 if (searchTerm.moreTerms.dateModiFrom) searchTermUrl += `&filter=lastUpdated:ge:${dateUtil.formatDateYYYYMMDD(searchTerm.moreTerms.dateModiFrom, '-')}`;
 
-                if (searchTerm.moreTerms.dateModiTo) searchTermUrl += `&filter=lastUpdated:le:${dateUtil.formatDateYYYYMMDD(searchTerm.moreTerms.dateModiTo, '-')}`;
-
-                if (searchTerm.moreTerms.interpretationText) searchTermUrl += `&filter=text:ilike:${searchTerm.moreTerms.interpretationText}`;
+                if (searchTerm.moreTerms.dateModiTo) searchTermUrl += `&filter=lastUpdated:lt:${dateUtil.formatDateYYYYMMDD(dateUtil.addDays(searchTerm.moreTerms.dateModiTo, 1), '-')}`;
 
                 // depending on the type, do other search..
                 if (searchTerm.moreTerms.favoritesName && searchTerm.moreTerms.type) searchTermUrl += `&filter=${this.getFavoriteSearchKeyName(searchTerm.moreTerms.type)}:ilike:${searchTerm.moreTerms.favoritesName}`;
 
-                if (searchTerm.moreTerms.commentText) searchTermUrl += `&filter=comments.text:ilike:${searchTerm.moreTerms.commentText}`;
-                
-                if (searchTerm.moreTerms.mention) searchTermUrl += `&filter=comments.mentions.username:eq:${this.props.d2.currentUser.username}`;
+                if (searchTerm.moreTerms.mention) searchTermUrl += `&filter=mentions:in:[${this.props.d2.currentUser.username}]`;
 
-                // TODO:
-                //      For 'Star' (Favorite), we can check it by '/{charId}/favorites...  so, we can do favorites:in:$---, but that would be in char..
-                //      So, we need to do 'chart.favorites:in:-userId--' ?  How can we tell which type?
-                //      Look at this in API after being able to submit for favorites/subscribers..
+                if (searchTerm.moreTerms.favorite)
+                    searchTermUrl += await this.getFilterByParentCondition("favorite:eq:true");
 
+                if (searchTerm.moreTerms.subscribed)
+                    searchTermUrl += await this.getFilterByParentCondition("subscribed:eq:true");
             }
         }
 
         return searchTermUrl;
+    },
+
+    toFilter(interpretationsObservable) {
+        // Limit Uids to avoid 413 Request too large
+        // maxUids = (maxUrlSize - urlAndOtherParamsSize) / (uidSize + encodedCommaSize)
+        const maxUids = (8192 - 1000) / (11 + 3);
+
+        return interpretationsObservable
+            .toPromise()
+            .then(interpretations => interpretations.map(interpretation => interpretation.id))
+            .then(interpretationIds => `&filter=id:in:[${interpretationIds.slice(0, maxUids).join(',')}]`);
+    },
+
+    getFilterByConditions(conditions) {
+        return this.toFilter(actions.getAllInterpretationsByOrFilters("id", conditions));
+    },
+
+    getFilterByParentCondition(condition) {
+        return this.toFilter(actions.getInterpretationsByParentFilter("id", condition));
     },
 
     getFavoriteSearchKeyName(favoriteType) {
@@ -357,8 +393,8 @@ const InterpretationList = React.createClass({
         });
     },
 
-    loadMore(page, afterFunc) {
-        const searchQuery = this.getSearchTerms(this.state.searchTerm);
+    async loadMore(page, afterFunc) {
+        const searchQuery = await this.getSearchTerms(this.state.searchTerm);
 
         actions.listInterpretation('', searchQuery, page).subscribe(result => {
             if (page === 1) {
@@ -423,7 +459,7 @@ const InterpretationList = React.createClass({
             { type: 'reportEvent', performed: false, query: `interpretations?paging=false&fields=id&filter=eventReport.name:ilike:${keyword}` },
             { type: 'map', performed: false, query: `interpretations?paging=false&fields=id&filter=map.name:ilike:${keyword}` },
             { type: 'author', performed: false, query: `interpretations?paging=false&fields=id&filter=user.name:ilike:${keyword}` },
-            { type: 'commentator', performed: false, query: `interpretations?paging=false&fields=id&filter=comments.user.name:ilike:${keyword}` },
+            { type: 'commentator', performed: false, query: `interpretations?paging=false&fields=id&filter=comments.user.name:ilike:${keyword}` },            
             { type: 'interpretationText', performed: false, query: `interpretations?paging=false&fields=id&filter=text:ilike:${keyword}` },
             { type: 'commentText', performed: false, query: `interpretations?paging=false&fields=id&filter=comments.text:ilike:${keyword}` },
         ];
@@ -495,11 +531,11 @@ const InterpretationList = React.createClass({
         return (
 			<div>
                 <div className="intpreLoading" style={{ display: 'none' }}>
-                    <CircularProgress size={2} />
+                    <CircularProgress size={60} />
                 </div>
                 <div className="intpreContents">
                     <InfiniteScroll key="interpretationListKey"
-                        loader={<div className="intprePageLoading"><CircularProgress size={1} /><span style={{ marginLeft: '20px' }}> Loading Interpretations...</span></div>}
+                        loader={<div className="intprePageLoading"><CircularProgress size={30} /><span style={{ marginLeft: '20px' }}> Loading Interpretations...</span></div>}
                         loadMore={this.loadMore} hasMore={this.state.hasMore} useWindow>
                         {this.state.items}
                     </InfiniteScroll>

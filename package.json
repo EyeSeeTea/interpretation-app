@@ -1,32 +1,32 @@
 {
   "name": "Interpretations",
-  "version": "0.1.29",
+  "version": "0.1.32",
   "description": "Interpretations app",
   "main": "src/index.html",
   "scripts": {
     "coverage": "babel-node node_modules/.bin/isparta cover --root ./src --report text --report html --report lcov node_modules/mocha/bin/_mocha -- --reporter dot --require config/setup.js --recursive test",
     "prebuild": "rm -rf build",
     "build": "webpack -p --progress && d2-manifest package.json build/manifest.webapp",
-    "postbuild": "cp -r index.html images icon.png node_modules/jquery/dist/jquery.min.js node_modules/babel-polyfill/dist/polyfill.min.js build/",
+    "postbuild": "cp -r index.html images icon.png node_modules/jquery/dist/jquery.min.js node_modules/babel-polyfill/dist/polyfill.min.js src/i18n build/",
     "test": "mocha --reporter spec --compilers js:babel-core/register --require config/setup.js --recursive test",
     "test-watch": "mocha --reporter spec --compilers js:babel-core/register --require config/setup.js --recursive test --watch",
     "lint": "eslint --fix src && ./node_modules/eslint/bin/eslint.js --env node,mocha --global expect,sinon,spy,stub --rule 'no-unused-expressions: 0' test && scss-lint",
     "validate": "npm ls",
     "prestart": "d2-manifest package.json manifest.webapp",
-    "start": "webpack-dev-server",
-    "deploy": "npm run build && mvn clean deploy"
+    "start": "webpack-dev-server"
   },
   "keywords": [
     "DHIS2",
     "App",
     "Interpretation"
   ],
-  "author": "James Chang",
+  "author": "James Chang & EyeSeeTea Team",
   "license": "BSD-3-Clause",
   "dependencies": {
     "jquery": "^2.2.3"
   },
   "devDependencies": {
+    "@dhis2/d2-ui-rich-text": "^1.0.0",
     "babel-core": "^6.7.2",
     "babel-eslint": "^6.1.2",
     "babel-loader": "^6.2.4",
@@ -36,9 +36,9 @@
     "babel-preset-stage-0": "^6.5.0",
     "chai": "^3.5.0",
     "css-loader": "^0.23.1",
-    "d2": "24.0.x",
+    "d2": "29.1.2",
+    "d2-ui": "29.0.11",
     "d2-manifest": "^1.0.0",
-    "d2-ui": "24.0.x",
     "d2-utilizr": "^0.2.9",
     "enzyme": "^2.1.0",
     "eslint": "^2.13.1",
@@ -49,18 +49,20 @@
     "isparta": "^4.0.0",
     "javascript-time-ago": "^0.4.3",
     "jsdom": "^9.0.0",
+    "json-loader": "^0.5.7",
     "loglevel": "^1.4.0",
-    "material-ui": "^0.14.4",
+    "material-ui": "^0.17.0",
     "mocha": "^2.4.5",
     "node-sass": "4.9.0",
     "rc-tooltip": "^3.4.2",
-    "react": "^0.14.7",
-    "react-addons-test-utils": "^0.14.7",
-    "react-dom": "^0.14.7",
+    "react": "^15.3.1",
+    "react-addons-test-utils": "^15.3.1",
+    "react-dom": "^15.3.1",
     "react-infinite-scroller": "^0.2.10",
     "react-intl": "^2.1.5",
-    "react-tap-event-plugin": "^0.2.2",
+    "react-tap-event-plugin": "^2.0.1",
     "react-time-ago": "^0.2.3",
+    "rxjs": "^5.2.0",
     "sass-loader": "7",
     "sinon": "^1.17.3",
     "sinon-chai": "^2.8.0",
@@ -85,6 +87,7 @@
   },
   "homepage": "https://github.com/dhis2/interpretation-app#readme",
   "manifest.webapp": {
+    "name": "Interpretations PSI",
     "icons": {
       "48": "icon.png"
     },
