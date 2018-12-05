@@ -26,7 +26,7 @@ const parentTypes = [
 actions.listInterpretation
 .subscribe(({ data: [model, searchData, page], complete, error }) => {
     getD2().then(d2 => {
-    let url = 'interpretations?fields=id,type,text,created,lastUpdated,userGroupAccesses[*]'
+    let url = 'interpretations?fields=id,type,text,created,lastUpdated,userGroupAccesses[*],access'
         + ',externalAccess,publicAccess,likes,likedBy[id,name],user[id,name,userCredentials[username]]'
         + ',comments[id,created,latestUpdate,text,user[id,name,userCredentials[username]]]'
         + ',eventReport[id,name,relativePeriods,userAccesses[*],userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
