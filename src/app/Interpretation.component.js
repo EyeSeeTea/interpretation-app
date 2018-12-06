@@ -423,7 +423,7 @@ const Interpretation = React.createClass({
         }
 
         // ?? ${_dhisLoc}??
-        return (link === '') ? '' : `${_dhisLoc}${link}/index.html?id=${this.props.data.objId}&interpretationId=${this.props.data.id}`;
+        return (link === '') ? '' : `${_dhisLoc}${link}/index.html?id=${this.props.data.objId}&interpretationid=${this.props.data.id}`;
     },
 
     _exploreInterpretation() {
@@ -458,6 +458,8 @@ const Interpretation = React.createClass({
                 primary
             />,
         ];
+
+        const showAdminActions = this.props.data.access && this.props.data.access.update;
 
         return (
 			<div id={interpretationTagId} key={interpretationTagId} className="interpretations">
@@ -505,7 +507,7 @@ const Interpretation = React.createClass({
                         {otherUtils.findItemFromList(this.props.data.likedBy, 'id', this.props.currentUser.id) === undefined ? <a onClick={this._likeHandler} id={likeLinkTagId}>Like</a> : <a onClick={this._unlikeHandler} id={likeLinkTagId}>Unlike</a> } 
                         <label className="linkArea">·</label>
                         <a onClick={this._replyInterpretation}>Reply</a>
-                        <span className={this.props.currentUser.id === this.props.data.userId || this.props.currentUser.superUser ? '' : 'hidden'} >
+                        <span className={showAdminActions ? '' : 'hidden'} >
                         <label className="linkArea">·</label><a onClick={this._showEditHandler}>Edit</a>
                         <label className="linkArea">·</label><a onClick={this._openSharingDialog}>Share</a>
                         <label className="linkArea">·</label><a onClick={this._deleteHandler}>Delete</a>

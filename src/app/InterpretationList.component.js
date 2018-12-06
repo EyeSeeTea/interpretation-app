@@ -91,14 +91,14 @@ const InterpretationList = React.createClass({
 
             if (interpretation.user === undefined) {
                 data.userId = '';
-                data.user = 'UNKNOWN';
                 data.username = 'UNKNOWN';
+                data.user = 'UNKNOWN';
             } else {
                 data.userId = interpretation.user.id;
-                data.user = interpretation.user.name;
                 data.username = interpretation.user.userCredentials
                     ? interpretation.user.userCredentials.username
                     : 'UNKNOWN';
+                data.user = interpretation.user.name;
             }
             // data.comments = JSON.stringify(interpretation.comments);
 
