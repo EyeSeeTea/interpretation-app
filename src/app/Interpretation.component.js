@@ -423,7 +423,7 @@ const Interpretation = React.createClass({
         }
 
         // ?? ${_dhisLoc}??
-        return (link === '') ? '' : `${_dhisLoc}${link}/index.html?id=${this.props.data.objId}&interpretationId=${this.props.data.id}`;
+        return (link === '') ? '' : `${_dhisLoc}${link}/index.html?id=${this.props.data.objId}&interpretationid=${this.props.data.id}`;
     },
 
     _exploreInterpretation() {
