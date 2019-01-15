@@ -13,6 +13,7 @@ import { validateSharing } from '../utils/permissions';
 import actions from './actions/Interpretation.action';
 import Tooltip from 'rc-tooltip';
 import 'rc-tooltip/assets/bootstrap_white.css';
+import Actions from './Actions.component';
 
 const Interpretation = React.createClass({
     propTypes: {
@@ -459,7 +460,20 @@ const Interpretation = React.createClass({
             />,
         ];
 
-        const showAdminActions = this.props.data.access && this.props.data.access.update;
+        const { currentUser, data: interpretation } = this.props;
+        const isLiked = otherUtils.findItemFromList(this.props.data.likedBy, 'id', this.props.currentUser.id);
+        const canUpdateByAcl = interpretation.access && interpretation.access.update;
+        const canUpdateByUser = currentUser.id === interpretation.userId || currentUser.superUser;
+
+        const interpretationActions = [
+            isLiked
+                ? { text: "Unlike", props: { onClick: this._unlikeHandler, id: likeLinkTagId} }
+                : { text: "Like", props: { onClick: this._likeHandler, id: likeLinkTagId} },
+            { text: "Reply", condition: canUpdateByAcl, props: { onClick: this._replyInterpretation } },
+            { text: "Edit", condition: canUpdateByAcl && canUpdateByUser, props: { onClick: this._showEditHandler } },
+            { text: "Share", condition: canUpdateByAcl, props: { onClick: this._openSharingDialog } },
+            { text: "Delete", condition: canUpdateByAcl && canUpdateByUser, props: { onClick: this._deleteHandler } },
+        ]
 
         return (
 			<div id={interpretationTagId} key={interpretationTagId} className="interpretations">
@@ -504,14 +518,7 @@ const Interpretation = React.createClass({
                     />
 
                     <div className="linkTag">
-                        {otherUtils.findItemFromList(this.props.data.likedBy, 'id', this.props.currentUser.id) === undefined ? <a onClick={this._likeHandler} id={likeLinkTagId}>Like</a> : <a onClick={this._unlikeHandler} id={likeLinkTagId}>Unlike</a> } 
-                        <label className="linkArea">·</label>
-                        <a onClick={this._replyInterpretation}>Reply</a>
-                        <span className={showAdminActions ? '' : 'hidden'} >
-                        <label className="linkArea">·</label><a onClick={this._showEditHandler}>Edit</a>
-                        <label className="linkArea">·</label><a onClick={this._openSharingDialog}>Share</a>
-                        <label className="linkArea">·</label><a onClick={this._deleteHandler}>Delete</a>
-                        </span>
+                        <Actions actions={interpretationActions} />
                     </div>
 
                     <SharingDialog
@@ -541,6 +548,7 @@ const Interpretation = React.createClass({
                             comments={this.state.comments}
                             likes={this.state.likes}
                             interpretationId={this.props.data.id}
+                            interpretationAccess={this.props.data.access}
                             likedBy={this.state.likedBy}
                             currentUser={this.props.currentUser}
                             newCommentVisibilityKey={newCommentVisibilityKey}
