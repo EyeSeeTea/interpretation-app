@@ -105,7 +105,7 @@ const Comment = React.createClass({
         const canUpdateByUser = comment.user && currentUser.id === comment.user.id || currentUser.superUser;
 
         const commentActions = [
-            { text: "Reply", condition: canUpdateByAcl, props: { onClick: this._reply } },
+            { text: "Reply", condition: true, props: { onClick: this._reply } },
             { text: "Edit", condition: canUpdateByUser && canUpdateByAcl, props: { onClick: this._showEditHandler } },
             { text: "Delete", condition: canUpdateByUser && canUpdateByAcl, props: { onClick: this._deleteHandler } },
         ];

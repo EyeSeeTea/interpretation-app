@@ -469,7 +469,7 @@ const Interpretation = React.createClass({
             isLiked
                 ? { text: "Unlike", props: { onClick: this._unlikeHandler, id: likeLinkTagId} }
                 : { text: "Like", props: { onClick: this._likeHandler, id: likeLinkTagId} },
-            { text: "Reply", condition: canUpdateByAcl, props: { onClick: this._replyInterpretation } },
+            { text: "Reply", condition: true, props: { onClick: this._replyInterpretation } },
             { text: "Edit", condition: canUpdateByAcl && canUpdateByUser, props: { onClick: this._showEditHandler } },
             { text: "Share", condition: canUpdateByAcl, props: { onClick: this._openSharingDialog } },
             { text: "Delete", condition: canUpdateByAcl && canUpdateByUser, props: { onClick: this._deleteHandler } },
