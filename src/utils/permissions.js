@@ -55,25 +55,3 @@ export function validateSharing(getTranslation, parentAttributes, attributes, pr
         validateGroupAccess(getTranslation, "userGroupAccesses", parentAttributes, attributes, prevAttributes)
     );
 }
-
-const parentTypes = [
-    "eventReport",
-    "eventChart",
-    "chart",
-    "map",
-    "reportTable",
-];
-
-export const interpretationsByFavoriteAccessFields =
-    parentTypes.map(type => `${type}[access[read]]`).join(',');
-
-export function filterInterpretationsByFavoriteAccess(interpretations) {
-    return interpretations.
-        filter(interpretation => {
-            return parentTypes.some(type =>
-                interpretation[type] &&
-                interpretation[type].access &&
-                interpretation[type].access.read
-            );
-        });
-}

@@ -1,7 +1,6 @@
 
 import Action from 'd2-ui/lib/action/Action';
 import { getInstance as getD2 } from 'd2/lib/d2';
-import { filterInterpretationsByFavoriteAccess } from '../../utils/permissions';
 
 const actions = Action.createActionsFromNames([
     'listInterpretation',
@@ -30,11 +29,11 @@ actions.listInterpretation
     let url = 'interpretations?fields=id,type,text,created,lastUpdated,userGroupAccesses[*],access'
         + ',externalAccess,publicAccess,likes,likedBy[id,name],user[id,name,userCredentials[username]]'
         + ',comments[id,created,latestUpdate,text,user[id,name,userCredentials[username]]]'
-        + ',eventReport[id,name,relativePeriods,access[read],userAccesses[*],userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
-        + ',eventChart[id,name,relativePeriods,access[read],userAccesses[*],userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
-        + ',chart[id,name,relativePeriods,access[read],userAccesses[*],userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
-        + ',map[id,name,mapViews[relativePeriods],access[read],userAccesses[*],userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
-        + ',reportTable[id,name,relativePeriods,access[read],userAccesses[*],userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
+        + ',eventReport[id,name,relativePeriods,userAccesses[*],userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
+        + ',eventChart[id,name,relativePeriods,userAccesses[*],userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
+        + ',chart[id,name,relativePeriods,userAccesses[*],userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
+        + ',map[id,name,mapViews[relativePeriods],userAccesses[*],userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
+        + ',reportTable[id,name,relativePeriods,userAccesses[*],userGroupAccesses[*],externalAccess,publicAccess,user[id,name],favorites,subscribers,mentions]'
         + searchData;
 
         if (page !== undefined) {
@@ -45,9 +44,7 @@ actions.listInterpretation
 
         d2.Api.getApi().get(url)
         .then(result => {
-            const interpretationsWithAccesibleFavorite =
-                filterInterpretationsByFavoriteAccess(result.interpretations);
-            complete({ ...result, interpretations: interpretationsWithAccesibleFavorite });
+            complete(result);
         })
         .catch(error);
     });
