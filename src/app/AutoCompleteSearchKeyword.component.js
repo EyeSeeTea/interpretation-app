@@ -3,6 +3,7 @@ import { AutoComplete } from 'material-ui';
 import { delayOnceTimeAction, restUtil, otherUtils } from './utils';
 import { getInstance as getD2 } from 'd2/lib/d2';
 import MenuItem from 'material-ui/MenuItem';
+import { filterInterpretationsByFavoriteAccess, interpretationsByFavoriteAccessFields } from '../utils/permissions';
 
 const AutoCompleteSearchKeyword = React.createClass({
     propTypes: {
@@ -93,6 +94,8 @@ const AutoCompleteSearchKeyword = React.createClass({
 
     performMultiItemSearch(d2, value, updateItemList) {
         const d2Api = d2.Api.getApi();
+        const filter = filterInterpretationsByFavoriteAccess;
+        const accessFields = interpretationsByFavoriteAccessFields;
 
         // UpdateItemList with placeholder of each section first..
         updateItemList(this.getPlaceHolderItems());
@@ -100,11 +103,11 @@ const AutoCompleteSearchKeyword = React.createClass({
 
         // Chart Favorit Search
         restUtil.requestGetHelper(d2Api,
-            `interpretations?paging=false&fields=id,text,chart[id,name,title]&filter=chart.name:ilike:${value}`,
+            `interpretations?paging=false&fields=id,text,chart[id,name,title,access[read]]&filter=chart.name:ilike:${value}`,
             (result) => {
                 const keywordList = [];
 
-                for (const interpretation of result.interpretations) {
+                for (const interpretation of filter(result.interpretations)) {
                     this.updateKeywordList(keywordList, interpretation.chart.id, interpretation.id, interpretation.chart.name, 'images/chart_small.png', 'Chart Favorite');
                 }
 
@@ -113,11 +116,11 @@ const AutoCompleteSearchKeyword = React.createClass({
 
         // Report Table Favorite Search
         restUtil.requestGetHelper(d2Api,
-            `interpretations?paging=false&fields=id,text,reportTable[id,name,title]&filter=reportTable.name:ilike:${value}`,
+            `interpretations?paging=false&fields=id,text,reportTable[id,name,title,access[read]]&filter=reportTable.name:ilike:${value}`,
             (result) => {
                 const keywordList = [];
 
-                for (const interpretation of result.interpretations) {
+                for (const interpretation of filter(result.interpretations)) {
                     this.updateKeywordList(keywordList, interpretation.reportTable.id, interpretation.id, interpretation.reportTable.name, 'images/table_small.png', 'Report Table Favorite');
                 }
 
@@ -127,11 +130,11 @@ const AutoCompleteSearchKeyword = React.createClass({
 
         // Event Chart Favorit Search
         restUtil.requestGetHelper(d2Api,
-            `interpretations?paging=false&fields=id,text,eventChart[id,name,title]&filter=eventChart.name:ilike:${value}`,
+            `interpretations?paging=false&fields=id,text,eventChart[id,name,title,access[read]]&filter=eventChart.name:ilike:${value}`,
             (result) => {
                 const keywordList = [];
 
-                for (const interpretation of result.interpretations) {
+                for (const interpretation of filter(result.interpretations)) {
                     this.updateKeywordList(keywordList, interpretation.eventChart.id, interpretation.id, interpretation.eventChart.name, 'images/chart_small.png', 'Event Chart Favorite');
                 }
 
@@ -140,11 +143,11 @@ const AutoCompleteSearchKeyword = React.createClass({
 
         // Event Report Table Favorite Search
         restUtil.requestGetHelper(d2Api,
-            `interpretations?paging=false&fields=id,text,eventReport[id,name,title]&filter=eventReport.name:ilike:${value}`,
+            `interpretations?paging=false&fields=id,text,eventReport[id,name,title,access[read]]&filter=eventReport.name:ilike:${value}`,
             (result) => {
                 const keywordList = [];
 
-                for (const interpretation of result.interpretations) {
+                for (const interpretation of filter(result.interpretations)) {
                     this.updateKeywordList(keywordList, interpretation.eventReport.id, interpretation.id, interpretation.eventReport.name, 'images/table_small.png', 'Event Report Table Favorite');
                 }
 
@@ -153,11 +156,11 @@ const AutoCompleteSearchKeyword = React.createClass({
 
         // Map Favorite Search
         restUtil.requestGetHelper(d2Api,
-            `interpretations?paging=false&fields=id,text,map[id,name,title]&filter=map.name:ilike:${value}`,
+            `interpretations?paging=false&fields=id,text,map[id,name,title,access[read]]&filter=map.name:ilike:${value}`,
             (result) => {
                 const keywordList = [];
 
-                for (const interpretation of result.interpretations) {
+                for (const interpretation of filter(result.interpretations)) {
                     this.updateKeywordList(keywordList, interpretation.map.id, interpretation.id, interpretation.map.name, 'images/map_small.png', 'Map Favorite');
                 }
 
@@ -166,11 +169,11 @@ const AutoCompleteSearchKeyword = React.createClass({
 
         // Author Search
         restUtil.requestGetHelper(d2Api,
-            `interpretations?paging=false&fields=id,text,user[id,name]&filter=user.name:ilike:${value}`,
+            `interpretations?paging=false&fields=id,text,user[id,name],${accessFields}&filter=user.name:ilike:${value}`,
             (result) => {
                 const keywordList = [];
 
-                for (const interpretation of result.interpretations) {
+                for (const interpretation of filter(result.interpretations)) {
                     this.updateKeywordList(keywordList, interpretation.user.id, interpretation.id, interpretation.user.name, 'images/user_small.png', 'Author');
                 }
 
@@ -179,11 +182,11 @@ const AutoCompleteSearchKeyword = React.createClass({
 
         // Commentator Search
         restUtil.requestGetHelper(d2Api,
-            `interpretations?paging=false&fields=id,text,comments[user[id,name]]&filter=comments.user.name:ilike:${value}`,
+            `interpretations?paging=false&fields=id,text,comments[user[id,name]],${accessFields}&filter=comments.user.name:ilike:${value}`,
             (result) => {
                 const keywordList = [];
 
-                for (const interpretation of result.interpretations) {
+                for (const interpretation of filter(result.interpretations)) {
                     for (const comment of interpretation.comments) {
                         if (comment.user.name.search(new RegExp(value, 'i')) >= 0) {
                             this.updateKeywordList(keywordList, comment.user.id, interpretation.id, comment.user.name, 'images/user_small.png', 'Commentator');
@@ -197,11 +200,11 @@ const AutoCompleteSearchKeyword = React.createClass({
 
         // Interpretation Text Search
         restUtil.requestGetHelper(d2Api,
-            `interpretations?paging=false&fields=id,text&filter=text:ilike:${value}`,
+            `interpretations?paging=false&fields=id,text,${accessFields}&filter=text:ilike:${value}`,
             (result) => {
                 const keywordList = [];
 
-                for (const interpretation of result.interpretations) {
+                for (const interpretation of filter(result.interpretations)) {
                     this.updateKeywordList(keywordList, interpretation.id, interpretation.id, interpretation.text, 'images/interpretation.png', 'Interpretation Text');
                 }
 
@@ -212,11 +215,11 @@ const AutoCompleteSearchKeyword = React.createClass({
 
         // Comment Text Search
         restUtil.requestGetHelper(d2Api,
-            `interpretations?paging=false&fields=id,text,comments[text]&filter=comments.text:ilike:${value}`,
+            `interpretations?paging=false&fields=id,text,comments[text],${accessFields}&filter=comments.text:ilike:${value}`,
             (result) => {
                 const keywordList = [];
 
-                for (const interpretation of result.interpretations) {
+                for (const interpretation of filter(result.interpretations)) {
                     for (const comment of interpretation.comments) {
                         if (comment.text.search(new RegExp(value, 'i')) >= 0) {
                             this.updateKeywordList(keywordList, comment.id, interpretation.id, comment.text, 'images/comment.png', 'Comment Text');
