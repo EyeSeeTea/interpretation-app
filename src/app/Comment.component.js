@@ -7,6 +7,7 @@ import MentionsWrapper from './mentions-wrapper';
 import { otherUtils } from './utils';
 import actions from './actions/Comment.action';
 import { getShortText } from '../utils/content';
+import Actions from './Actions.component';
 
 const Comment = React.createClass({
     propTypes: {
@@ -15,6 +16,7 @@ const Comment = React.createClass({
         user: React.PropTypes.string,
         currentUser: React.PropTypes.object,
         interpretationId: React.PropTypes.string,
+        interpretationAccess: React.PropTypes.object,
         deleteCommentSuccess: React.PropTypes.func,
         onReply: React.PropTypes.func,
     },
@@ -98,6 +100,16 @@ const Comment = React.createClass({
 
         const { showMoreLink, displayText } = getShortText(text, {showAllText, maxWords: 30})
 
+        const { currentUser, data: comment, interpretationAccess } = this.props;
+        const canUpdateByAcl = interpretationAccess && interpretationAccess.update;
+        const canUpdateByUser = comment.user && currentUser.id === comment.user.id || currentUser.superUser;
+
+        const commentActions = [
+            { text: "Reply", condition: true, props: { onClick: this._reply } },
+            { text: "Edit", condition: canUpdateByUser && canUpdateByAcl, props: { onClick: this._showEditHandler } },
+            { text: "Delete", condition: canUpdateByUser && canUpdateByAcl, props: { onClick: this._deleteHandler } },
+        ];
+
         return (
             <table>
                 <tbody>
@@ -139,12 +151,8 @@ const Comment = React.createClass({
                                 </span>
 
                                 <label className="linkArea"></label>
-                                <a onClick={this._reply}>Reply</a>
-
-                                <span className={this.props.currentUser.id === data.user.id || this.props.currentUser.superUser ? '' : 'hidden'} >
-                                   <label className="linkArea">·</label><a onClick={this._showEditHandler}>Edit</a>
-                                   <label className="linkArea">·</label><a onClick={this._deleteHandler}>Delete</a>
-                                </span>
+                                
+                                <Actions actions={commentActions} />
                             </div>
                         </td>
                     </tr>

@@ -7,6 +7,7 @@ const CommentList = React.createClass({
         list: React.PropTypes.array,
         currentUser: React.PropTypes.object,
         interpretationId: React.PropTypes.string,
+        interpretationAccess: React.PropTypes.object,
         hidden: React.PropTypes.bool,
         deleteCommentSuccess: React.PropTypes.func,
         updateCommentSuccess: React.PropTypes.func,
@@ -36,6 +37,7 @@ const CommentList = React.createClass({
                             data={data}
                             currentUser={this.props.currentUser}
                             interpretationId={this.props.interpretationId}
+                            interpretationAccess={this.props.interpretationAccess}
                             updateCommentSuccess={this.props.updateCommentSuccess}
                             deleteCommentSuccess={this.props.deleteCommentSuccess}
                             onReply={this.props.onReply}

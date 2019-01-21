@@ -11,6 +11,7 @@ const CommentArea = React.createClass({
         likes: React.PropTypes.number,
         likedBy: React.PropTypes.array,
         interpretationId: React.PropTypes.string,
+        interpretationAccess: React.PropTypes.object,
         currentUser: React.PropTypes.object,
         newCommentVisibilityKey: React.PropTypes.any,
         newCommentText: React.PropTypes.string,
@@ -107,6 +108,7 @@ const CommentArea = React.createClass({
                 isHidden={false}
                 key={keyTagId}
                 interpretationId={this.props.interpretationId}
+                interpretationAccess={this.props.interpretationAccess}
                 currentUser={this.props.currentUser}
                 updateCommentSuccess={this._updateCommentSuccess}
                 deleteCommentSuccess={this._deleteCommentSuccess}
@@ -128,6 +130,7 @@ const CommentArea = React.createClass({
                 list={this.state.hideComments}
                 key={keyTagId}
                 interpretationId={this.props.interpretationId}
+                interpretationAccess={this.props.interpretationAccess}
                 currentUser={this.props.currentUser}
                 updateCommentSuccess={this._updateCommentSuccess}
                 deleteCommentSuccess={this._deleteCommentSuccess}
