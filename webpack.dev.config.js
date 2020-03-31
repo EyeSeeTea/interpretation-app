@@ -37,7 +37,7 @@ webpackConfig.devServer = {
     contentBase: './src',
     progress: true,
     port: 8081,
-    open: true
+    open: false
 };
 
 module.exports = webpackConfig;
