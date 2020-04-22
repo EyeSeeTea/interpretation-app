@@ -100,7 +100,7 @@
     },
     "activities": {
       "dhis": {
-        "href": ".."
+        "href": "*"
       }
     }
   }
