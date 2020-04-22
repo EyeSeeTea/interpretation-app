@@ -1,22 +1,16 @@
 {
     "presets": [
         [
-            "es2015",
+            "@babel/preset-env",
             {
-                "modules": false
+                "useBuiltIns": "entry",
+                "modules": "cjs",
             }
         ],
-        "react",
-        "stage-0"
+        "@babel/preset-react",
     ],
-    "env": {
-        "test": {
-            "presets": ["es2015", "react", "stage-0"],
-            "only": [
-                "src/*.js",
-                "src/**/*.js",
-                "config/*.js"
-            ]
-        }
-    }
+    "plugins": [
+        "@babel/plugin-proposal-class-properties",
+        "@babel/plugin-transform-runtime"
+    ]
 }
